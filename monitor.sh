@@ -12,6 +12,7 @@ while getopts "v:ad" opt; do
            action="Decreasing"
         ;;
         v) alarm="${OPTARG}"
+           previous="${alarm}"
         ;;
         \?) echo "-v <alarm_value> -a -d"
             exit
@@ -39,8 +40,8 @@ fi
 
 file="media/alarm.wav"
 
-header="#############################"
-footer="###############################################################################"
+header="###############################"
+footer="###################################################################################"
 
 while [[ true ]]
 do
@@ -74,7 +75,17 @@ do
         echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}"  
     fi
 
-    echo "[${DATE}] Last: R$ ${last} | Low: R$ ${low} | High: R$ ${high}"
+    if [[ "${previous%.*}" -lt "${last%.*}" ]]; then
+        direction="${bold}[+]${tag_end}"
+    elif [[ "${previous%.*}" -gt "${last%.*}" ]]; then
+        direction="${bold}[-]${tag_end}"
+    else
+        direction="${bold}[=]${tag_end}"
+    fi
+
+    echo -e "[${DATE}] ${direction} Last: R$ ${last} | Low: R$ ${low} | High: R$ ${high}"
+
+    previous=$(echo "${last%.*}" | bc)
 
     diff=$(echo "${last%.*} - ${alarm%.*}" | bc)
 
