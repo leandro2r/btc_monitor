@@ -1,4 +1,5 @@
 #!/bin/bash
+source api_config.txt
 
 while getopts "v:" opt; do
     case $opt in
@@ -9,15 +10,6 @@ while getopts "v:" opt; do
         ;;
     esac
 done
-
-# Requirements
-if [ `dpkg-query -l jq | echo $?` -ne 0 ]; then
-    sudo apt-get install jq
-fi
-
-if [ `dpkg-query -l sox | echo $?` -ne 0 ]; then
-    sudo apt-get install sox
-fi
 
 bold="\033[1m"
 underline="\033[4m"
@@ -38,7 +30,12 @@ while [[ true ]]
 do
     DATE=`date '+%d/%m/%Y %H:%M:%S'`
 
-    foxbit=`curl -s -X GET "https://api.blinktrade.com/api/v1/BRL/ticker"`
+    foxbit=`curl -s "https://api.blinktrade.com/api/v1/BRL/ticker"`
+
+    if [[ -z ${foxbit} ]]; then
+        echo "[${DATE}] Trying to curl data"
+        continue
+    fi
 
     high=`echo "${foxbit}" | jq '.high'`
     last=`echo "${foxbit}" | jq '.last'`
@@ -72,6 +69,18 @@ do
         \n${bold}${footer}${tag_end}"
 
         play ${file} 2> /dev/null
+
+        if [[ (! -z ${telegram_token}) && (! -z ${telegram_chat_id}) ]]; then
+            telegram_text="Value found: *R$ ${last}*
+	             Buy: *R$ ${buy}*
+	             Sell: *R$ ${sell}*
+		     https://foxbit.exchange/#trading"
+
+            curl -s --output /dev/null -X POST \
+            https://api.telegram.org/bot${telegram_token}/sendMessage \
+            -d chat_id=${telegram_chat_id} -d parse_mode="Markdown" \
+            -d text="${telegram_text}"
+        fi
 
         alarm=${last}
 
