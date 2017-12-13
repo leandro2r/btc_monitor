@@ -1,11 +1,19 @@
 #!/bin/bash
 source api_config.txt
 
-while getopts "v:" opt; do
+while getopts "v:ad" opt; do
     case $opt in
+        a) mode="Ascending"
+           descending=false
+           action="Increasing"
+        ;;
+        d) mode="Descending"
+           descending=true
+           action="Decreasing"
+        ;;
         v) alarm="${OPTARG}"
         ;;
-        \?) echo "-v <alarm_value>"
+        \?) echo "-v <alarm_value> -a -d"
             exit
         ;;
     esac
@@ -16,9 +24,17 @@ underline="\033[4m"
 tag_end="\033[0m"
 
 # Validate optargs
+if [[ -z "${action}" ]]; then
+    echo "Choose one option: -a (Ascending) -d (Descending)"
+    exit 1
+fi
+
+DATE=`date '+%d/%m/%Y %H:%M:%S'`
+
+echo -e "${bold}[${DATE}] Setting alarm mode to: ${mode}${tag_end}"
+
 if [[ "${alarm}" -gt 0 ]]; then
-    DATE=`date '+%d/%m/%Y %H:%M:%S'`
-    echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}" 
+    echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}"
 fi
 
 file="media/alarm.wav"
@@ -62,7 +78,7 @@ do
 
     diff=$(echo "${last%.*} - ${alarm%.*}" | bc)
 
-    if [[ ${diff} -lt 0 ]]; then
+    if [[ (${diff} -lt 0 && ${descending} == true) || (${diff} -gt 0 && ${descending} == false) ]]; then
         echo -e "${bold}${header} ${DATE} ${header}${tag_end}
         \n\t\t\t ${bold}[X] Value found: R$ ${last}${tag_end}
         \t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}
@@ -72,7 +88,7 @@ do
         play ${file} 2> /dev/null
 
         if [[ (! -z ${telegram_token}) && (! -z ${telegram_chat_id}) ]]; then
-            telegram_text="Value found: *R$ ${last}*
+            telegram_text="Alarm mode: \`${mode}\`  Value found: *R$ ${last}*
 	             Buy: *R$ ${buy}*
 	             Sell: *R$ ${sell}*
 		     https://foxbit.exchange/#trading"
@@ -85,6 +101,6 @@ do
 
         alarm=${last}
 
-        echo -e "${bold}[${DATE}] Decreasing alarm value to last: R$ ${alarm}${tag_end}"       
+        echo -e "${bold}[${DATE}] ${action} alarm value to last: R$ ${alarm}${tag_end}"
     fi
 done
