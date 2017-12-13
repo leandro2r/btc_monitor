@@ -32,8 +32,9 @@ do
 
     foxbit=`curl -s "https://api.blinktrade.com/api/v1/BRL/ticker"`
 
-    if [[ -z ${foxbit} ]]; then
-        echo "[${DATE}] Trying to curl data"
+    if ! jq -e . >/dev/null 2>&1 <<<"${foxbit}"; then
+        echo "[${DATE}] Trying to get data"
+        sleep 10
         continue
     fi
 
