@@ -1,5 +1,4 @@
 #!/bin/bash
-source api_config.txt
 source telegram_api.sh
 
 while getopts "v:ad" opt; do
@@ -43,9 +42,9 @@ DATE=`date '+%d/%m/%y %H:%M:%S'`
 
 echo -e "${bold}[${DATE}] Setting alarm mode to: ${mode}${tag_end}"
 
-if [[ "${alarm}" -gt 0 ]]; then
-    echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}"
-fi
+echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}"
+
+send_to_telegram "config" "${mode}" "${alarm}"
 
 while [[ true ]]
 do
@@ -88,13 +87,7 @@ do
 
         play ${sound} 2> /dev/null
 
-        if [[ (! -z ${telegram_token}) && (! -z ${telegram_chat_id}) ]]; then
-            text="Alarm mode: \`${mode}\`  Value found: *R$ ${last}*
-	             Buy: *R$ ${buy}*
-	             Sell: *R$ ${sell}*
-		     https://foxbit.exchange/#trading"
-            send_to_telegram "${text}"
-        fi
+        send_to_telegram "alarm" "${mode}" "${foxbit}"
 
         alarm=${last}
 
