@@ -7,31 +7,32 @@ send_to_telegram()
         return 0
     fi
 
-    info_type=$1
+    info=$1
 	mode=$2
     data=$3
 
     name=`hostname`
 
-    title="\`${name}\`
-Alarm mode: *${mode}*"
-
-    case "${info_type}" in
-		"config")
-			msg="${title}
- Alarm value: *R$ ${data}*"
+    case "${info}" in
+        "config")
+		msg="*New alarm ${mode}: R$ ${data}*"
 		;;
+        "update")
+		msg="*${mode}: R$ ${data}*"
+        ;;
     	"alarm")
-			msg="${title}
- Value found: *R$ ${last}*
-		             Buy: *R$ ${buy}*
-		             Sell: *R$ ${sell}*
-			     https://foxbit.exchange/#trading"
+		msg="*Alarm: R$ ${last} ${mode}*
+		  Low: R$ ${low}
+		 High: R$ ${high}
+		  Buy: R$ ${buy}
+		   Sell: R$ ${sell}
+		https://foxbit.exchange/#trading"
 		;;
 	esac
 
     curl -s --output /dev/null -X POST \
     https://api.telegram.org/bot${telegram_token}/sendMessage \
     -d chat_id=${telegram_chat_id} -d parse_mode="Markdown" \
-    -d text="${msg}"
+    -d text=$"${msg}
+\`${name}\`"
 }

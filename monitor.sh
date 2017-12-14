@@ -3,16 +3,18 @@ source telegram_api.sh
 
 while getopts "v:ad" opt; do
     case $opt in
-        a) mode="Ascending"
+        a) simbol="↗"
+           mode="Ascending ${simbol}"
            descending=false
            action="Increasing"
         ;;
-        d) mode="Descending"
+        d) simbol="↘"
+           mode="Descending ${simbol}"
            descending=true
            action="Decreasing"
         ;;
         v) alarm="${OPTARG}"
-           previous="${alarm}"
+           last_prev="${alarm}"
         ;;
         \?) echo "-v <alarm_value> -a -d"
             exit
@@ -21,13 +23,13 @@ while getopts "v:ad" opt; do
 done
 
 # Validate optargs
-if [[ -z "${alarm}" ]]; then
+if [[ -z ${alarm} ]]; then
     echo "Choose an alarm value for monitoring: -v <alarm_value>"
     exit 1
 fi
 
-if [[ -z "${action}" ]]; then
-    echo "Choose one option: -a (Ascending) -d (Descending)"
+if [[ -z ${action} ]]; then
+    echo "Choose one option: -a (Ascending ↗) -d (Descending ↘)"
     exit 1
 fi
 
@@ -44,7 +46,7 @@ echo -e "${bold}[${DATE}] Setting alarm mode to: ${mode}${tag_end}"
 
 echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}"
 
-send_to_telegram "config" "${mode}" "${alarm}"
+send_to_telegram "config" "${simbol}" "${alarm}"
 
 while [[ true ]]
 do
@@ -64,17 +66,25 @@ do
     buy=`echo "${foxbit}" | jq '.buy'`
     sell=`echo "${foxbit}" | jq '.sell'`
 
-    if [[ "${previous%.*}" -lt "${last%.*}" ]]; then
-        direction="${bold}[+]${tag_end}"
-    elif [[ "${previous%.*}" -gt "${last%.*}" ]]; then
-        direction="${bold}[-]${tag_end}"
-    else
-        direction="${bold}[=]${tag_end}"
+    mode_last="Last: R$ ${last}"
+
+    if [[ "${last_prev%.*}" -lt "${last%.*}" && ${descending} == false ]]; then
+        mode_last="${bold}${mode_last} ${simbol}${tag_end}"
+    elif [[ "${last_prev%.*}" -gt "${last%.*}" && ${descending} == true ]]; then
+        mode_last="${bold}${mode_last} ${simbol}${tag_end}"
     fi
 
-    echo -e "[${DATE}] ${direction} Last: R$ ${last} | Low: R$ ${low} | High: R$ ${high}"
+    echo -e "[${DATE}] ${mode_last} | Low: R$ ${low} | High: R$ ${high}"
 
-    previous=`echo "${last%.*}" | bc`
+    if [[ "${high_prev%.*}" -lt "${last%.*}" && "${high_prev%.*}" -gt 0 ]]; then
+        send_to_telegram "update" "↗ High" "${last}"
+    elif [[ "${low_prev%.*}" -gt "${last%.*}" ]]; then
+        send_to_telegram "update" "↘ Low" "${last}"
+    fi
+
+    high_prev=`echo "${high%.*}" | bc`
+    last_prev=`echo "${last%.*}" | bc`
+    low_prev=`echo "${low%.*}" | bc`
 
     diff=`echo "${last%.*} - ${alarm%.*}" | bc`
 
@@ -87,7 +97,7 @@ do
 
         play ${sound} 2> /dev/null
 
-        send_to_telegram "alarm" "${mode}" "${foxbit}"
+        send_to_telegram "alarm" "${simbol}" "${foxbit}"
 
         alarm=${last}
 
