@@ -7,11 +7,13 @@ send_to_telegram()
         return 0
     fi
 
+    if [[ -z ${name} ]]; then
+        name=`hostname`
+    fi
+
     info=$1
 	mode=$2
     data=$3
-
-    name=`hostname`
 
     case "${info}" in
         "config")

@@ -1,7 +1,7 @@
 #!/bin/bash
 source telegram_api.sh
 
-while getopts "v:ad" opt; do
+while getopts "v:adn:" opt; do
     case $opt in
         a) simbol="↗"
            mode="Ascending ${simbol}"
@@ -16,7 +16,9 @@ while getopts "v:ad" opt; do
         v) alarm="${OPTARG}"
            last_prev="${alarm}"
         ;;
-        \?) echo "-v <alarm_value> -a -d"
+        n) name="${OPTARG}"
+        ;;
+        \?) echo "-v <alarm_value> -a -d -n <instance_name>"
             exit
         ;;
     esac

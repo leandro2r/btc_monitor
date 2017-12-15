@@ -18,11 +18,12 @@ telegram_chat_id="<CHAT_ID>"
 
 ### Man monitor.sh
 
-`./monitor.sh -v <alarm_value> -a -d`
+`./monitor.sh -v <alarm_value> -a -d -n <instance_name>`
 
-- `-v`: Monitored value
+- `-v <alarm_value>`: Monitored value
 - `-a`: Ascending mode
 - `-d`: Descending mode
+- `-n <instance_name>`: Instance name
 
 ### Foxbit data from BlinkTrade API
 
