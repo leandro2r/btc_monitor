@@ -4,11 +4,13 @@ source telegram_api.sh
 while getopts "v:adn:" opt; do
     case $opt in
         a) simbol="↗"
+           simbol_utf8="\xE2\x86\x97"
            mode="Ascending ${simbol}"
            descending=false
            action="Increasing"
         ;;
         d) simbol="↘"
+           simbol_utf8="\xE2\x86\x98"
            mode="Descending ${simbol}"
            descending=true
            action="Decreasing"
@@ -26,12 +28,12 @@ done
 
 # Validate optargs
 if [[ -z ${alarm} ]]; then
-    echo "Choose an alarm value for monitoring: -v <alarm_value>"
+    echo -e "Choose an alarm value for monitoring: -v <alarm_value>"
     exit 1
 fi
 
 if [[ -z ${action} ]]; then
-    echo "Choose one option: -a (Ascending ↗) -d (Descending ↘)"
+    echo -e "Choose one option: -a (Ascending \xE2\x86\x97) -d (Descending \xE2\x86\x98)"
     exit 1
 fi
 
@@ -44,7 +46,7 @@ tag_end="\033[0m"
 
 DATE=`date '+%d/%m/%y %H:%M:%S'`
 
-echo -e "${bold}[${DATE}] Setting alarm mode to: ${mode}${tag_end}"
+echo -e "${bold}[${DATE}] Setting alarm mode to: ${simbol_utf8}${tag_end}"
 
 echo -e "${bold}[${DATE}] Setting alarm value to: R$ ${alarm}${tag_end}"
 
@@ -71,9 +73,9 @@ do
     mode_last="Last: R$ ${last}"
 
     if [[ "${last_prev%.*}" -lt "${last%.*}" && ${descending} == false ]]; then
-        mode_last="${bold}${mode_last} ${simbol}${tag_end}"
+        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
     elif [[ "${last_prev%.*}" -gt "${last%.*}" && ${descending} == true ]]; then
-        mode_last="${bold}${mode_last} ${simbol}${tag_end}"
+        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
     fi
 
     echo -e "[${DATE}] ${mode_last} | Low: R$ ${low} | High: R$ ${high}"
