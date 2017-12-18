@@ -11,25 +11,31 @@ send_to_telegram()
         name=`hostname`
     fi
 
-    info=$1
-	mode=$2
-    data=$3
+    data=$1
+    custom_data=$2
 
-    case "${info}" in
+    case "${data}" in
         "config")
-		msg="*New alarm ${mode}: R$ ${data}*"
+		msg="*New alarm ${simbol} (${interval_min} min)
+		R$ ${alarm}*"
 		;;
         "update")
-		msg="*${mode}: R$ ${data}*"
+		msg="*${custom_data}: R$ ${last}*"
         ;;
     	"alarm")
-		msg="*Alarm: R$ ${last} ${mode}*
+		msg="*Alarm: R$ ${last} ${simbol}*
 		  Low: R$ ${low}
 		 High: R$ ${high}
 		  Buy: R$ ${buy}
 		   Sell: R$ ${sell}
 		https://foxbit.exchange/#trading"
 		;;
+        "summary")
+        msg="*Summary of ${custom_data} min (${duration}s)*
+		 Low: R$ ${period_low}
+		High: R$ ${period_high}
+		 Last: R$ ${last}"
+        ;;
 	esac
 
     curl -s --output /dev/null -X POST \
