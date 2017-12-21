@@ -1,5 +1,4 @@
 #!/bin/bash
-source api_config.txt
 
 send_to_telegram()
 {
@@ -13,6 +12,7 @@ send_to_telegram()
 
     data=$1
     custom_data=$2
+    value=$3
 
     case "${data}" in
         "config")
@@ -20,7 +20,7 @@ send_to_telegram()
 		R$ ${alarm}*"
 		;;
         "update")
-		msg="*${custom_data}: R$ ${last}*"
+		msg="*${custom_data}: R$ ${value}*"
         ;;
     	"alarm")
 		msg="*Alarm: R$ ${last} ${simbol}*

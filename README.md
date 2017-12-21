@@ -1,5 +1,10 @@
 # Foxbit Monitor script
 
+### Description
+
+This script monitors the bitcoin value from Foxbit exchange using API (Blinktrade as default) and notifies if the **Alarm**, **High** or **Low** value has been catched up.
+The notices can also be sent by Foxbit Monitor Bot by Telegram BOT.
+
 ### Requirements
 
 `sudo apt-get install jq`
@@ -8,10 +13,12 @@
 
 ### Config file
 
-Create/Use `api_config.txt` file to set some APIs configs
+Create/Use `config.txt` file to set some scripts configurations (API, sound file and Telegram)
 
 *api_config.txt*
 ```
+api_ticker="<URL>"
+alarm_sound="<FILE_PATH>"
 telegram_token="<TOKEN>"
 telegram_chat_id="<CHAT_ID>"
 ```

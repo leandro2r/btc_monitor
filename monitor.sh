@@ -1,4 +1,5 @@
 #!/bin/bash
+source config.txt
 source telegram_api.sh
 
 while getopts "v:adn:i:" opt; do
@@ -40,12 +41,21 @@ if [[ -z ${action} ]]; then
     exit 1
 fi
 
+if [[ -z ${api_ticker} ]]; then
+    # Default api_ticker: Blinktrade
+    api_ticker="https://api.blinktrade.com/api/v1/BRL/ticker"
+fi
+
+if [[ -z ${alarm_sound} ]]; then
+    # Default alarm sound: register machine
+    alarm_sound="media/alarm.wav"
+fi
+
 if [[ -z ${period_interval} ]]; then
     # Default value: 30min
     period_interval=1800
 fi
 
-sound="media/alarm.wav"
 header="###############################"
 footer="###################################################################################"
 bold="\033[1m"
@@ -67,7 +77,7 @@ while [[ true ]]
 do
     DATE=`date '+%d/%m/%y %H:%M:%S'`
 
-    json_data=`curl -s "https://api.blinktrade.com/api/v1/BRL/ticker"`
+    json_data=`curl -s "${api_ticker}"`
 
     if ! jq -e . >/dev/null 2>&1 <<<"${json_data}"; then
         echo "[${DATE}] Trying to get data"
@@ -91,10 +101,10 @@ do
 
     echo -e "[${DATE}] ${mode_last} | Low: R$ ${low} | High: R$ ${high}"
 
-    if [[ "${high_prev%.*}" -lt "${last%.*}" && "${high_prev%.*}" -gt 0 ]]; then
-        send_to_telegram "update" "↗ High"
-    elif [[ "${low_prev%.*}" -gt "${last%.*}" ]]; then
-        send_to_telegram "update" "↘ Low"
+    if [[ "${high_prev%.*}" -lt "${last%.*}" && ! -z ${high_prev} ]]; then
+        send_to_telegram "update" "↗ High" ${last}
+    elif [[ "${low_prev%.*}" -gt "${last%.*}" && ! -z ${low_prev} ]]; then
+        send_to_telegram "update" "↘ Low" ${last}
     fi
 
     high_prev="${high%.*}"
@@ -103,7 +113,7 @@ do
 
     diff=`echo "${last%.*} - ${alarm%.*}" | bc`
 
-    if [[ (${diff} -lt 0 && ${descending} == true) 
+    if [[ (${diff} -lt 0 && ${descending} == true)
         || (${diff} -gt 0 && ${descending} == false) ]]; then
         echo -e "${bold}${header} ${DATE} ${header}${tag_end}
         \n\t\t\t ${bold}[X] Value found: R$ ${last}${tag_end}
@@ -111,7 +121,7 @@ do
         \t\t ${underline}https://foxbit.exchange/#trading${tag_end}
         \n${bold}${footer}${tag_end}"
 
-        play ${sound} 2> /dev/null
+        play ${alarm_sound} 2> /dev/null
 
         send_to_telegram "alarm"
 
