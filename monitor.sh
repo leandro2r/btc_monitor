@@ -101,15 +101,17 @@ do
 
     echo -e "[${DATE}] ${mode_last} | Low: R$ ${low} | High: R$ ${high}"
 
-    if [[ "${high_prev%.*}" -lt "${last%.*}" && ! -z ${high_prev} ]]; then
+    if [[ "${high%.*}" -eq "${last%.*}"
+        && "${high_prev%.*}" -lt "${high%.*}" ]]; then
         send_to_telegram "update" "↗ High" ${last}
-    elif [[ "${low_prev%.*}" -gt "${last%.*}" && ! -z ${low_prev} ]]; then
+    elif [[ "${low%.*}" -eq "${last%.*}"
+        && "${low_prev%.*}" -gt "${low%.*}" ]]; then
         send_to_telegram "update" "↘ Low" ${last}
     fi
 
-    high_prev="${high%.*}"
-    last_prev="${last%.*}"
-    low_prev="${low%.*}"
+    high_prev="${high}"
+    last_prev="${last}"
+    low_prev="${low}"
 
     diff=`echo "${last%.*} - ${alarm%.*}" | bc`
 
