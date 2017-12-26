@@ -2,7 +2,7 @@
 source config.txt
 source telegram_api.sh
 
-while getopts "v:adn:i:" opt; do
+while getopts "v:adn:i:b:" opt; do
     case $opt in
         a) simbol="↗"
            simbol_utf8="\xE2\x86\x97"
@@ -22,6 +22,8 @@ while getopts "v:adn:i:" opt; do
         n) name="${OPTARG}"
         ;;
         i) period_interval="${OPTARG}"
+        ;;
+        b) btc="${OPTARG}"
         ;;
         \?) echo "-v <alarm_value> -a -d -n <instance_name> "
                  "-i <summary_interval_in_seconds>"
@@ -56,8 +58,8 @@ if [[ -z ${period_interval} ]]; then
     period_interval=1800
 fi
 
-header="###############################"
-footer="###################################################################################"
+header="####################################"
+footer="###########################################################################################"
 bold="\033[1m"
 underline="\033[4m"
 tag_end="\033[0m"
@@ -69,7 +71,7 @@ echo -e "${bold}[${DATE}] Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
                     Setting summary interval to: ${period_interval}s (${interval_min} min)${tag_end}"
 
-send_to_telegram "config"
+send_to_telegram "config" ${btc}
 
 START_TIME=$SECONDS
 
@@ -93,13 +95,20 @@ do
 
     mode_last="Last: R$ ${last}"
 
-    if [[ "${last_prev%.*}" -lt "${last%.*}" && ${descending} == false ]]; then
-        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
-    elif [[ "${last_prev%.*}" -gt "${last%.*}" && ${descending} == true ]]; then
-        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
+    if [[ ! -z ${btc} ]]; then
+        btc_brl=`echo "scale=2;(${btc} * ${last})/1" | bc`
+        mode_btc_brl="[R$ ${btc_brl}]"
     fi
 
-    echo -e "[${DATE}] ${mode_last} | Low: R$ ${low} | High: R$ ${high}"
+    if [[ "${last_prev%.*}" -lt "${last%.*}" && ${descending} == false ]]; then
+        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
+        mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
+    elif [[ "${last_prev%.*}" -gt "${last%.*}" && ${descending} == true ]]; then
+        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
+        mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
+    fi
+
+    echo -e "[${DATE}] ${mode_last} | \xE2\x86\x93 R$ ${low} | \xE2\x86\x91 R$ ${high} ${mode_btc_brl}"
 
     if [[ "${high%.*}" -eq "${last%.*}"
         && "${high_prev%.*}" -lt "${high%.*}" ]]; then
@@ -125,7 +134,7 @@ do
 
         play ${alarm_sound} 2> /dev/null
 
-        send_to_telegram "alarm"
+        send_to_telegram "alarm" "" ${btc_brl}
 
         alarm=${last}
 
@@ -147,7 +156,7 @@ do
     duration=`echo "${SECONDS} - ${START_TIME}" | bc`
 
     if [[ ${duration} -ge ${period_interval} ]]; then
-        send_to_telegram "summary" `echo "${duration} / 60" | bc`
+        send_to_telegram "summary" `echo "${duration} / 60" | bc` ${btc_brl}
         period_high="${last}"
         period_low="${last}"
         START_TIME=$SECONDS

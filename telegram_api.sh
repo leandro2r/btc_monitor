@@ -17,24 +17,28 @@ send_to_telegram()
     case "${data}" in
         "config")
 		msg="*New alarm ${simbol} (${interval_min} min)
-		R$ ${alarm}*"
+		 R$ ${alarm}
+BTC ${custom_data}*"
 		;;
         "update")
 		msg="*${custom_data}: R$ ${value}*"
         ;;
     	"alarm")
 		msg="*Alarm: R$ ${last} ${simbol}*
-		  Low: R$ ${low}
-		 High: R$ ${high}
 		  Buy: R$ ${buy}
 		   Sell: R$ ${sell}
-		https://foxbit.exchange/#trading"
+	  Price: R$ ${value}
+        https://foxbit.exchange/#trading"
 		;;
         "summary")
         msg="*Summary of ${custom_data} min (${duration}s)*
 		 Low: R$ ${period_low}
 		High: R$ ${period_high}
 		 Last: R$ ${last}"
+        if [[ ! -z ${value} ]]; then
+            msg="${msg}
+	 Price: R$ ${value}"
+        fi
         ;;
 	esac
 
