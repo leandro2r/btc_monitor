@@ -58,8 +58,8 @@ if [[ -z ${period_interval} ]]; then
     period_interval=1800
 fi
 
-header="####################################"
-footer="###########################################################################################"
+header="##############################"
+footer="###############################################################################"
 bold="\033[1m"
 underline="\033[4m"
 tag_end="\033[0m"
@@ -71,7 +71,7 @@ echo -e "${bold}[${DATE}] Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
                     Setting summary interval to: ${period_interval}s (${interval_min} min)${tag_end}"
 
-send_to_telegram "config" ${btc}
+send_to_telegram "config" ${interval_min} ${btc}
 
 START_TIME=$SECONDS
 
@@ -93,22 +93,24 @@ do
     buy=`echo "${json_data}" | jq '.buy'`
     sell=`echo "${json_data}" | jq '.sell'`
 
-    mode_last="Last: R$ ${last}"
-
     if [[ ! -z ${btc} ]]; then
-        btc_brl=`echo "scale=2;(${btc} * ${last})/1" | bc`
+        btc_brl=`echo "scale=2;(${btc} * ${last}) / 1" | bc -l`
         mode_btc_brl="[R$ ${btc_brl}]"
     fi
 
+    mask_last=`echo "scale=2;${last} / 1" | bc -l`
+
     if [[ "${last_prev%.*}" -lt "${last%.*}" && ${descending} == false ]]; then
-        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
+        mode_last="${bold}${simbol_utf8} R$ ${mask_last}${tag_end}"
         mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
     elif [[ "${last_prev%.*}" -gt "${last%.*}" && ${descending} == true ]]; then
-        mode_last="${bold}${mode_last} ${simbol_utf8}${tag_end}"
+        mode_last="${bold}${simbol_utf8} R$ ${mask_last}${tag_end}"
         mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
+    else
+        mode_last="\xE2\xA4\xBA R$ ${mask_last}"
     fi
 
-    echo -e "[${DATE}] ${mode_last} | \xE2\x86\x93 R$ ${low} | \xE2\x86\x91 R$ ${high} ${mode_btc_brl}"
+    echo -e "[${DATE}] ${mode_last} | \xE2\xA4\x93 R$ ${low} | \xE2\xA4\x92 R$ ${high} ${mode_btc_brl}"
 
     if [[ "${high%.*}" -eq "${last%.*}"
         && "${high_prev%.*}" -lt "${high%.*}" ]]; then
@@ -127,7 +129,7 @@ do
     if [[ (${diff} -lt 0 && ${descending} == true)
         || (${diff} -gt 0 && ${descending} == false) ]]; then
         echo -e "${bold}${header} ${DATE} ${header}${tag_end}
-        \n\t\t\t ${bold}[X] Value found: R$ ${last}${tag_end}
+        \n\t\t\t ${bold}[\xE2\x9C\x96] Value found: R$ ${last}${tag_end}
         \t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}
         \t\t ${underline}https://foxbit.exchange/#trading${tag_end}
         \n${bold}${footer}${tag_end}"
