@@ -16,9 +16,13 @@ send_to_telegram()
 
     case "${data}" in
         "config")
-		msg="*New alarm ${simbol} (${interval_min} min)
-		 R$ ${alarm}
-BTC ${custom_data}*"
+		msg="New alarm ${simbol} (${custom_data} min)
+		 R$ ${alarm}"
+        if [[ ! -z ${value} ]]; then
+            msg="${msg}
+BTC ${value}"
+        fi
+        msg="*${msg}*"
 		;;
         "update")
 		msg="*${custom_data}: R$ ${value}*"
@@ -26,9 +30,12 @@ BTC ${custom_data}*"
     	"alarm")
 		msg="*Alarm: R$ ${last} ${simbol}*
 		  Buy: R$ ${buy}
-		   Sell: R$ ${sell}
-	  Price: R$ ${value}
-        https://foxbit.exchange/#trading"
+		   Sell: R$ ${sell}"
+        if [[ ! -z ${value} ]]; then
+            msg="${msg}
+	  Price: R$ ${value}"
+        fi
+        msg="${msg} https://foxbit.exchange/#trading"
 		;;
         "summary")
         msg="*Summary of ${custom_data} min (${duration}s)*
