@@ -83,15 +83,21 @@ do
 
     if ! jq -e . >/dev/null 2>&1 <<<"${json_data}"; then
         echo "[${DATE}] Trying to get data"
-        sleep 10
+        sleep 5
         continue
     fi
 
-    high=`echo "${json_data}" | jq '.high'`
-    last=`echo "${json_data}" | jq '.last'`
-    low=`echo "${json_data}" | jq '.low'`
-    buy=`echo "${json_data}" | jq '.buy'`
-    sell=`echo "${json_data}" | jq '.sell'`
+    high=`echo "${json_data}" | jq -r 'select(.high != null) | .high'`
+    last=`echo "${json_data}" | jq -r 'select(.last != null) | .last'`
+    low=`echo "${json_data}" | jq -r 'select(.low != null) | .low'`
+    buy=`echo "${json_data}" | jq -r 'select(.buy != null) | .buy'`
+    sell=`echo "${json_data}" | jq -r 'select(.sell != null) | .sell'`
+
+    if [[ -z ${high} || -z ${last} || -z ${low} ]]; then
+        echo "[${DATE}] Trying to get data"
+        sleep 5
+        continue
+    fi
 
     if [[ ! -z ${btc} ]]; then
         btc_brl=`echo "scale=2;(${btc} * ${last}) / 1" | bc -l`
