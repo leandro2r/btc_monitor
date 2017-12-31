@@ -30,21 +30,21 @@ BTC ${value}"
     	"alarm")
 		msg="*Alarm: R$ ${last} ${simbol}*
 		  Buy: R$ ${buy}
-		   Sell: R$ ${sell}"
+		  Sell: R$ ${sell}"
         if [[ ! -z ${value} ]]; then
             msg="${msg}
-	  Price: R$ ${value}"
+	*Price: R$ ${value}* (${custom_data}%)"
         fi
         msg="${msg} https://foxbit.exchange/#trading"
 		;;
         "summary")
-        msg="*Summary of ${custom_data} min (${duration}s)*
+        msg="*Summary of ${interval_min} min (${duration}s)*
 		 Low: R$ ${period_low}
 		High: R$ ${period_high}
 		 Last: R$ ${last}"
         if [[ ! -z ${value} ]]; then
             msg="${msg}
-	 Price: R$ ${value}"
+	 Price: R$ ${value} (${custom_data}%)"
         fi
         ;;
 	esac

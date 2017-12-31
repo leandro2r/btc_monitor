@@ -48,6 +48,11 @@ if [[ -z ${api_ticker} ]]; then
     api_ticker="https://api.blinktrade.com/api/v1/BRL/ticker"
 fi
 
+if [[ -z ${tax} ]]; then
+    # Default passive tax: 0,25% (Foxbit)
+    tax="0.25"
+fi
+
 if [[ -z ${alarm_sound} ]]; then
     # Default alarm sound: register machine
     alarm_sound="media/alarm.wav"
@@ -66,6 +71,7 @@ tag_end="\033[0m"
 
 DATE=`date '+%d/%m/%y %H:%M:%S'`
 interval_min=`echo "${period_interval} / 60" | bc`
+percent_total=`echo "100 - ${tax}" | bc`
 
 echo -e "${bold}[${DATE}] Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
@@ -100,7 +106,7 @@ do
     fi
 
     if [[ ! -z ${btc} ]]; then
-        btc_brl=`echo "scale=2;(${btc} * ${last}) / 1" | bc -l`
+        btc_brl=`echo "scale=2;(${btc} * (${percent_total} / 100)) * ${last} / 1" | bc -l`
         mode_btc_brl="[R$ ${btc_brl}]"
     fi
 
@@ -142,7 +148,7 @@ do
 
         play ${alarm_sound} 2> /dev/null
 
-        send_to_telegram "alarm" "" ${btc_brl}
+        send_to_telegram "alarm" ${percent_total} ${btc_brl}
 
         alarm=${last}
 
@@ -164,7 +170,7 @@ do
     duration=`echo "${SECONDS} - ${START_TIME}" | bc`
 
     if [[ ${duration} -ge ${period_interval} ]]; then
-        send_to_telegram "summary" `echo "${duration} / 60" | bc` ${btc_brl}
+        send_to_telegram "summary" ${percent_total} ${btc_brl}
         period_high="${last}"
         period_low="${last}"
         START_TIME=$SECONDS

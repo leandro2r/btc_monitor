@@ -13,13 +13,14 @@ The notices can also be sent by Foxbit Monitor Bot by Telegram BOT.
 
 ### Config file
 
-Create/Use `config.txt` file to set some scripts configurations (API, sound file, BTC value and Telegram)
+Create/Use `config.txt` file to set some scripts configurations (API, sound file, BTC value, Exchange infos and Telegram):
 
 *api_config.txt*
 ```
 api_ticker="<URL>"
 alarm_sound="<FILE_PATH>"
 btc="<BTC_VALUE>"
+tax="<EXCHANGE_TAX>"
 telegram_token="<TOKEN>"
 telegram_chat_id="<CHAT_ID>"
 ```
