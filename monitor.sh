@@ -71,7 +71,7 @@ tag_end="\033[0m"
 
 DATE=`date '+%d/%m/%y %H:%M:%S'`
 interval_min=`echo "${period_interval} / 60" | bc`
-percent_total=`echo "100 - ${tax}" | bc`
+percent_total=`echo "scale=2;100 - ${tax} / 1" | bc -l`
 
 echo -e "${bold}[${DATE}] Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
@@ -106,16 +106,15 @@ do
     fi
 
     if [[ ! -z ${btc} ]]; then
-        btc_brl=`echo "scale=2;(${btc} * (${percent_total} / 100)) * ${last} / 1" | bc -l`
+        btc_brl=`echo "(${btc} * (${percent_total} / 100)) * ${last}" | bc -l`
+        btc_brl=`echo "scale=2;${btc_brl} / 1" | bc -l`
         mode_btc_brl="[R$ ${btc_brl}]"
     fi
 
     mask_last=`echo "scale=2;${last} / 1" | bc -l`
 
-    if [[ "${last_prev%.*}" -lt "${last%.*}" && ${descending} == false ]]; then
-        mode_last="${bold}${simbol_utf8} R$ ${mask_last}${tag_end}"
-        mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
-    elif [[ "${last_prev%.*}" -gt "${last%.*}" && ${descending} == true ]]; then
+    if [[ ("${last_prev%.*}" -lt "${last%.*}" && ${descending} == false)
+        || ("${last_prev%.*}" -gt "${last%.*}" && ${descending} == true) ]]; then
         mode_last="${bold}${simbol_utf8} R$ ${mask_last}${tag_end}"
         mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
     else
