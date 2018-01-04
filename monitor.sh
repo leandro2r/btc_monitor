@@ -8,7 +8,7 @@ BOLD="\033[1m"
 UNDERLINE="\033[4m"
 STYLE_END="\033[0m"
 
-while getopts "v:adn:i:" opt; do
+while getopts "v:adn:i:c:" opt; do
     case $opt in
         a) simbol="↗"
            simbol_utf8="\xE2\x86\x97"
@@ -31,8 +31,22 @@ while getopts "v:adn:i:" opt; do
         ;;
         i) period_interval="${OPTARG}"
         ;;
+        c)  case "${OPTARG}" in
+                "blue") COLOR="\033[0;34m"
+                ;;
+                "cyan") COLOR="\033[0;36m"
+                ;;
+                "gray") COLOR="\033[0;37m"
+                ;;
+                "purple") COLOR="\033[0;35m"
+                ;;
+                "orange") COLOR="\033[0;33m"
+                ;;
+            esac
+        ;;
         \?) echo "-v <alarm_value> -a -d -n <instance_name> "
-                 "-i <summary_interval_in_seconds>"
+                 "-i <summary_interval_in_seconds> "
+                 "-c <identification_color>"
             exit
         ;;
     esac
@@ -70,7 +84,7 @@ DATE=`date '+%d/%m/%y %H:%M:%S'`
 interval_min=`echo "${period_interval} / 60" | bc`
 percent_total=`echo "scale=2;100 - ${trade_fee} / 1" | bc -l`
 
-echo -e "${BOLD}[${DATE}] Setting alarm mode to: ${simbol_utf8}
+echo -e "${COLOR}[${DATE}] ${BOLD}Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
                     Setting summary interval to: ${period_interval}s (${interval_min} min)${STYLE_END}"
 
@@ -85,7 +99,7 @@ do
     json_data=`curl -s "${api_ticker}"`
 
     if ! jq -e . >/dev/null 2>&1 <<<"${json_data}"; then
-        echo "[${DATE}] Trying to get data"
+        echo "${COLOR}[${DATE}]${STYLE_END} Trying to get data"
         sleep 5
         continue
     fi
@@ -97,7 +111,7 @@ do
     sell=`echo "${json_data}" | jq -r 'select(.sell != null) | .sell'`
 
     if [[ -z ${high} || -z ${last} || -z ${low} ]]; then
-        echo "[${DATE}] Trying to get data"
+        echo "${COLOR}[${DATE}]${STYLE_END} Trying to get data"
         sleep 5
         continue
     fi
@@ -118,7 +132,7 @@ do
         mode_last="\xE2\xA4\xBA R$ ${mask_last}"
     fi
 
-    echo -e "[${DATE}] ${mode_last} | \xE2\xA4\x93 R$ ${low} | \xE2\xA4\x92 R$ ${high} ${mode_btc_brl}"
+    echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_last} | \xE2\xA4\x93 R$ ${low} | \xE2\xA4\x92 R$ ${high} ${mode_btc_brl}"
 
     if [[ "${high%.*}" -eq "${last%.*}"
         && "${high_prev%.*}" -lt "${high%.*}" ]]; then
@@ -136,11 +150,11 @@ do
 
     if [[ (${diff} -lt 0 && ${descending} == true)
         || (${diff} -gt 0 && ${descending} == false) ]]; then
-        echo -e "${BOLD}${HEADER} ${DATE} ${HEADER}${STYLE_END}
+        echo -e "${COLOR}${HEADER} ${DATE} ${HEADER}${STYLE_END}
         \n\t\t\t ${BOLD}[\xE2\x9C\x96] Value found: R$ ${last}${STYLE_END}
         \t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}
         \t\t ${UNDERLINE}https://foxbit.exchange/#trading${STYLE_END}
-        \n${BOLD}${FOOTER}${STYLE_END}"
+        \n${COLOR}${FOOTER}${STYLE_END}"
 
         play ${alarm_sound} 2> /dev/null
 
@@ -148,7 +162,7 @@ do
 
         alarm=${last}
 
-        echo -e "[${DATE}] ${mode_color}${action} alarm value to last: R$ ${alarm}${STYLE_END}"
+        echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_color}${action} alarm value to last: R$ ${alarm}${STYLE_END}"
     fi
 
     # Metrics for summary

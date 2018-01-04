@@ -27,13 +27,14 @@ telegram_chat_id="<CHAT_ID>"
 
 ### Man monitor.sh
 
-`./monitor.sh -v <alarm_value> -a -d -i <summary_interval_in_seconds> -n <instance_name>`
+`./monitor.sh -v <alarm_value> -a -d -i <summary_interval_in_seconds> -n <instance_name> -c <identification_color>`
 
 - `-v <alarm_value>`: Monitored value
 - `-a`: Ascending mode
 - `-d`: Descending mode
 - `-i <summary_interval_in_seconds>`: Interval duration (in seconds)
 - `-n <instance_name>`: Instance name
+- `-c <identification_color>`: Color name (blue|cyan|gray|purple|orange)
 
 ### Foxbit data from BlinkTrade API
 
