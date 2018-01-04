@@ -2,6 +2,12 @@
 source config.txt
 source telegram_api.sh
 
+HEADER="##############################"
+FOOTER="###############################################################################"
+BOLD="\033[1m"
+UNDERLINE="\033[4m"
+STYLE_END="\033[0m"
+
 while getopts "v:adn:i:b:" opt; do
     case $opt in
         a) simbol="↗"
@@ -9,12 +15,14 @@ while getopts "v:adn:i:b:" opt; do
            mode="Ascending ${simbol}"
            descending=false
            action="Increasing"
+           mode_color="\033[1;32m"
         ;;
         d) simbol="↘"
            simbol_utf8="\xE2\x86\x98"
            mode="Descending ${simbol}"
            descending=true
            action="Decreasing"
+           mode_color="\033[1;31m"
         ;;
         v) alarm="${OPTARG}"
            last_prev="${alarm}"
@@ -63,19 +71,13 @@ if [[ -z ${period_interval} ]]; then
     period_interval=1800
 fi
 
-header="##############################"
-footer="###############################################################################"
-bold="\033[1m"
-underline="\033[4m"
-tag_end="\033[0m"
-
 DATE=`date '+%d/%m/%y %H:%M:%S'`
 interval_min=`echo "${period_interval} / 60" | bc`
 percent_total=`echo "scale=2;100 - ${tax} / 1" | bc -l`
 
-echo -e "${bold}[${DATE}] Setting alarm mode to: ${simbol_utf8}
+echo -e "${BOLD}[${DATE}] Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
-                    Setting summary interval to: ${period_interval}s (${interval_min} min)${tag_end}"
+                    Setting summary interval to: ${period_interval}s (${interval_min} min)${STYLE_END}"
 
 send_to_telegram "config" ${interval_min} ${btc}
 
@@ -115,8 +117,8 @@ do
 
     if [[ ("${last_prev%.*}" -lt "${last%.*}" && ${descending} == false)
         || ("${last_prev%.*}" -gt "${last%.*}" && ${descending} == true) ]]; then
-        mode_last="${bold}${simbol_utf8} R$ ${mask_last}${tag_end}"
-        mode_btc_brl="${bold}${mode_btc_brl}${tag_end}"
+        mode_last="${mode_color}${simbol_utf8} R$ ${mask_last}${STYLE_END}"
+        mode_btc_brl="${mode_color}${mode_btc_brl}${STYLE_END}"
     else
         mode_last="\xE2\xA4\xBA R$ ${mask_last}"
     fi
@@ -139,11 +141,11 @@ do
 
     if [[ (${diff} -lt 0 && ${descending} == true)
         || (${diff} -gt 0 && ${descending} == false) ]]; then
-        echo -e "${bold}${header} ${DATE} ${header}${tag_end}
-        \n\t\t\t ${bold}[\xE2\x9C\x96] Value found: R$ ${last}${tag_end}
+        echo -e "${BOLD}${HEADER} ${DATE} ${HEADER}${STYLE_END}
+        \n\t\t\t ${BOLD}[\xE2\x9C\x96] Value found: R$ ${last}${STYLE_END}
         \t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}
-        \t\t ${underline}https://foxbit.exchange/#trading${tag_end}
-        \n${bold}${footer}${tag_end}"
+        \t\t ${UNDERLINE}https://foxbit.exchange/#trading${STYLE_END}
+        \n${BOLD}${FOOTER}${STYLE_END}"
 
         play ${alarm_sound} 2> /dev/null
 
@@ -151,7 +153,7 @@ do
 
         alarm=${last}
 
-        echo -e "${bold}[${DATE}] ${action} alarm value to last: R$ ${alarm}${tag_end}"
+        echo -e "${BOLD}[${DATE}] ${action} alarm value to last: R$ ${alarm}${STYLE_END}"
     fi
 
     # Metrics for summary
