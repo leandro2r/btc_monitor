@@ -8,7 +8,7 @@ BOLD="\033[1m"
 UNDERLINE="\033[4m"
 STYLE_END="\033[0m"
 
-while getopts "v:adn:i:b:" opt; do
+while getopts "v:adn:i:" opt; do
     case $opt in
         a) simbol="↗"
            simbol_utf8="\xE2\x86\x97"
@@ -30,8 +30,6 @@ while getopts "v:adn:i:b:" opt; do
         n) name="${OPTARG}"
         ;;
         i) period_interval="${OPTARG}"
-        ;;
-        b) btc="${OPTARG}"
         ;;
         \?) echo "-v <alarm_value> -a -d -n <instance_name> "
                  "-i <summary_interval_in_seconds>"
@@ -56,9 +54,9 @@ if [[ -z ${api_ticker} ]]; then
     api_ticker="https://api.blinktrade.com/api/v1/BRL/ticker"
 fi
 
-if [[ -z ${tax} ]]; then
-    # Default passive tax: 0,25% (Foxbit)
-    tax="0.25"
+if [[ -z ${trade_fee} ]]; then
+    # Default passive trade fee: 0,25% (Foxbit)
+    trade_fee="0.25"
 fi
 
 if [[ -z ${alarm_sound} ]]; then
@@ -73,7 +71,7 @@ fi
 
 DATE=`date '+%d/%m/%y %H:%M:%S'`
 interval_min=`echo "${period_interval} / 60" | bc`
-percent_total=`echo "scale=2;100 - ${tax} / 1" | bc -l`
+percent_total=`echo "scale=2;100 - ${trade_fee} / 1" | bc -l`
 
 echo -e "${BOLD}[${DATE}] Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
