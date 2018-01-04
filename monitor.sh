@@ -40,12 +40,9 @@ done
 
 # Validate optargs
 if [[ -z ${alarm} ]]; then
-    echo -e "Choose an alarm value for monitoring: -v <alarm_value>"
-    exit 1
-fi
-
-if [[ -z ${action} ]]; then
-    echo -e "Choose one option: -a (Ascending \xE2\x86\x97) -d (Descending \xE2\x86\x98)"
+    alarm=0
+elif [[ -z ${mode} ]]; then
+    echo -e "Choose one mode: -a (Ascending \xE2\x86\x97) -d (Descending \xE2\x86\x98)"
     exit 1
 fi
 
@@ -56,7 +53,7 @@ fi
 
 if [[ -z ${trade_fee} ]]; then
     # Default passive trade fee: 0,25% (Foxbit)
-    trade_fee="0.25"
+    trade_fee=0.25
 fi
 
 if [[ -z ${alarm_sound} ]]; then
@@ -65,8 +62,8 @@ if [[ -z ${alarm_sound} ]]; then
 fi
 
 if [[ -z ${period_interval} ]]; then
-    # Default value: 30min
-    period_interval=1800
+    # Default value: 10min
+    period_interval=600
 fi
 
 DATE=`date '+%d/%m/%y %H:%M:%S'`
@@ -151,7 +148,7 @@ do
 
         alarm=${last}
 
-        echo -e "${BOLD}[${DATE}] ${action} alarm value to last: R$ ${alarm}${STYLE_END}"
+        echo -e "[${DATE}] ${mode_color}${action} alarm value to last: R$ ${alarm}${STYLE_END}"
     fi
 
     # Metrics for summary
