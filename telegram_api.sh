@@ -2,7 +2,8 @@
 
 send_to_telegram()
 {
-	if [[ (-z ${telegram_token}) || (-z ${telegram_chat_id}) ]]; then
+	if [[ (-z ${telegram_token}) || (-z ${telegram_chat_id}) 
+           || (! -z ${mute}) ]]; then
         return 0
     fi
 
@@ -39,8 +40,8 @@ BTC ${value}"
 		;;
         "summary")
         msg="*Summary of ${interval_min} min (${duration}s)*
-		 Low: R$ ${period_low}
-		High: R$ ${period_high}
+		 Low: R$ ${summary_low}
+		High: R$ ${summary_high}
 		 Last: R$ ${last}"
         if [[ ! -z ${value} ]]; then
             msg="${msg}
