@@ -34,7 +34,7 @@ telegram_chat_id="<CHAT_ID>"
 - `-d`: Descending mode
 - `-t <summary_interval_in_seconds>`: Time interval of summary (in seconds)
 - `-n <instance_name>`: Instance name
-- `-c <identification_color>`: Color name ([0] Black | [1] Blue | [2] Cyan | [3] Green | [4] Purple | [5] Red | [6] White | [7] Yellow)
+- `-c <identification_color>`: Color name (`0 black` | `1 blue` | `2 cyan` | `3 green` | `4 purple` | `5 red` | `6 white` | `7 yellow`)
 - `-m`: Mute (Alarm sound and Telegram publisher)
 
 ### Foxbit data from BlinkTrade API
