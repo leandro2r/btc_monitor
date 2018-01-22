@@ -154,25 +154,27 @@ do
     last_prev="${last}"
     low_prev="${low}"
 
-    diff=`echo "${last%.*} - ${alarm%.*}" | bc`
+    if [[ ${alarm} -ne 0 ]]; then
+        diff=`echo "${last%.*} - ${alarm%.*}" | bc`
 
-    if [[ (${diff} -lt 0 && ${descending} == true)
-        || (${diff} -gt 0 && ${descending} == false) ]]; then
-        echo -e "${COLOR}${HEADER} ${DATE} ${HEADER}${STYLE_END}
-        \n\t\t\t ${BOLD}[\xE2\x9C\x96] Value found: R$ ${last}${STYLE_END}
-        \t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}
-        \t\t ${UNDERLINE}https://foxbit.exchange/#trading${STYLE_END}
-        \n${COLOR}${FOOTER}${STYLE_END}"
+        if [[ (${diff} -lt 0 && ${descending} == true)
+            || (${diff} -gt 0 && ${descending} == false) ]]; then
+            echo -e "${COLOR}${HEADER} ${DATE} ${HEADER}${STYLE_END}
+            \n\t\t\t ${BOLD}[\xE2\x9C\x96] Value found: R$ ${last}${STYLE_END}
+            \t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}
+            \t\t ${UNDERLINE}https://foxbit.exchange/#trading${STYLE_END}
+            \n${COLOR}${FOOTER}${STYLE_END}"
 
-        if [[ -z ${mute} ]]; then
-            play ${alarm_sound} 2> /dev/null
+            if [[ -z ${mute} ]]; then
+                play ${alarm_sound} 2> /dev/null
+            fi
+
+            send_to_telegram "alarm" ${percent_total} ${btc_brl}
+
+            alarm=${last}
+
+            echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_color}${action} alarm value to last: R$ ${alarm}${STYLE_END}"
         fi
-
-        send_to_telegram "alarm" ${percent_total} ${btc_brl}
-
-        alarm=${last}
-
-        echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_color}${action} alarm value to last: R$ ${alarm}${STYLE_END}"
     fi
 
     # Metrics for summary
