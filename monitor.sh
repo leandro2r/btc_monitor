@@ -25,7 +25,7 @@ while getopts "v:n:t:c:admh" opt; do
            mode_color="\033[1;31m"
         ;;
         v) alarm="${OPTARG}"
-           last_prev="${alarm}"
+           prev_last="${alarm}"
         ;;
         n) name="${OPTARG}"
         ;;
@@ -61,9 +61,7 @@ while getopts "v:n:t:c:admh" opt; do
 done
 
 # Validate optargs
-if [[ -z ${alarm} ]]; then
-    alarm=0
-elif [[ -z ${mode} ]]; then
+if [[ ! -z ${alarm} && -z ${mode} ]]; then
     echo -e "Choose one mode: -a (Ascending \xE2\x86\x97) -d (Descending \xE2\x86\x98)"
     exit 1
 fi
@@ -90,11 +88,28 @@ fi
 
 DATE=`date '+%d/%m/%y %H:%M:%S'`
 interval_min=`echo "${time_interval} / 60" | bc`
-percent_total=`echo "scale=2;100 - ${trade_fee} / 1" | bc -l`
+total_percent=`echo "scale=2;100 - ${trade_fee} / 1" | bc -l`
+
+if [[ -z ${alarm} && ! -z ${ref} && ! -z ${var} && -z ${mute} ]]; then
+    brl_var=`echo "${ref} + ${var}" | bc`
+
+    if [[ ${descending} == false ]]; then
+        # SELL
+        alarm=`echo "(${brl_var} * (100 + (${trade_fee} * 2)) / 100) + 1" | bc`
+    else
+        # BUY
+        alarm=`echo "(${brl_var} * (100 - (${trade_fee} * 2)) / 100) - 1" | bc`
+    fi
+fi
+
+if [[ ! -z ${btc} ]]; then
+    goal=`echo "scale=2;${btc} * ${alarm} / 1" | bc -l`
+fi
 
 echo -e "${COLOR}[${DATE}] ${BOLD}Setting alarm mode to: ${simbol_utf8}
                     Setting alarm value to: R$ ${alarm}
-                    Setting summary interval to: ${time_interval}s (${interval_min} min)${STYLE_END}"
+                    Setting summary interval to: ${time_interval}s (${interval_min} min)
+                    Setting goal value to: R$ ${goal}${STYLE_END}"
 
 send_to_telegram "config" ${interval_min} ${btc}
 
@@ -125,15 +140,15 @@ do
     fi
 
     if [[ ! -z ${btc} ]]; then
-        btc_brl=`echo "(${btc} * (${percent_total} / 100)) * ${last}" | bc -l`
+        btc_brl=`echo "(${btc} * (${total_percent} / 100)) * ${last}" | bc -l`
         btc_brl=`echo "scale=2;${btc_brl} / 1" | bc -l`
         mode_btc_brl="[R$ ${btc_brl}]"
     fi
 
     mask_last=`echo "scale=2;${last} / 1" | bc -l`
 
-    if [[ ("${last_prev%.*}" -lt "${last%.*}" && ${descending} == false)
-        || ("${last_prev%.*}" -gt "${last%.*}" && ${descending} == true) ]]; then
+    if [[ ("${prev_last%.*}" -lt "${last%.*}" && ${descending} == false)
+        || ("${prev_last%.*}" -gt "${last%.*}" && ${descending} == true) ]]; then
         mode_last="${mode_color}${simbol_utf8} R$ ${mask_last}${STYLE_END}"
         mode_btc_brl="${mode_color}${mode_btc_brl}${STYLE_END}"
     else
@@ -143,16 +158,16 @@ do
     echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_last} | \xE2\xA4\x93 R$ ${low} | \xE2\xA4\x92 R$ ${high} ${mode_btc_brl}"
 
     if [[ "${high%.*}" -eq "${last%.*}"
-        && "${high_prev%.*}" -lt "${high%.*}" ]]; then
+        && "${prev_high%.*}" -lt "${high%.*}" ]]; then
         send_to_telegram "update" "↗ High" ${last}
     elif [[ "${low%.*}" -eq "${last%.*}"
-        && "${low_prev%.*}" -gt "${low%.*}" ]]; then
+        && "${prev_low%.*}" -gt "${low%.*}" ]]; then
         send_to_telegram "update" "↘ Low" ${last}
     fi
 
-    high_prev="${high}"
-    last_prev="${last}"
-    low_prev="${low}"
+    prev_high="${high}"
+    prev_last="${last}"
+    prev_low="${low}"
 
     if [[ ${alarm} -ne 0 ]]; then
         diff=`echo "${last%.*} - ${alarm%.*}" | bc`
@@ -169,7 +184,7 @@ do
                 play ${alarm_sound} 2> /dev/null
             fi
 
-            send_to_telegram "alarm" ${percent_total} ${btc_brl}
+            send_to_telegram "alarm" ${total_percent} ${btc_brl}
 
             alarm=${last}
 
@@ -192,7 +207,7 @@ do
     duration=`echo "${SECONDS} - ${START_TIME}" | bc`
 
     if [[ ${duration} -ge ${time_interval} ]]; then
-        send_to_telegram "summary" ${percent_total} ${btc_brl}
+        send_to_telegram "summary" ${total_percent} ${btc_brl}
         summary_high="${last}"
         summary_low="${last}"
         START_TIME=$SECONDS
