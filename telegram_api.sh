@@ -11,48 +11,43 @@ send_to_telegram()
         name=`hostname`
     fi
 
-    data=$1
-    custom_data=$2
-    value=$3
-
-    case "${data}" in
+    case $1 in
         "config")
-		msg="New alarm ${simbol} (${custom_data} min)
-		 R$ ${alarm}"
-        if [[ ! -z ${value} ]]; then
-            msg="${msg}
-BTC ${value}"
-        fi
-        msg="*${msg}*"
+            msg="New alarm ${simbol} (${interval_min} min)\
+                 %0AR$ ${alarm}"
+
+            if [[ ! -z ${btc} ]]; then
+                msg+="%0ABTC ${btc}"
+            fi
+
+            msg="*${msg}*"
 		;;
         "update")
-		msg="*${custom_data}: R$ ${value}*"
+            msg="*$2: R$ ${last}*"
         ;;
     	"alarm")
-		msg="*Alarm: R$ ${last} ${simbol}*
-		  Buy: R$ ${buy}
-		  Sell: R$ ${sell}"
-        if [[ ! -z ${value} ]]; then
-            msg="${msg}
-	*Price: R$ ${value}* (${custom_data}%)"
-        fi
-        msg="${msg} https://foxbit.exchange/#trading"
+            msg="*Alarm: R$ ${last} ${simbol}*\
+                 %0A   Buy: R$ ${buy}\
+		         %0A   Sell: R$ ${sell}"
+
+            if [[ ! -z ${btc_brl} ]]; then
+                msg+="%0A*Price: R$ ${btc_brl}* (${percent_total}%)"
+            fi
 		;;
         "summary")
-        msg="*Summary of ${interval_min} min (${duration}s)*
-		 Low: R$ ${summary_low}
-		High: R$ ${summary_high}
-		 Last: R$ ${last}"
-        if [[ ! -z ${value} ]]; then
-            msg="${msg}
-	 Price: R$ ${value} (${custom_data}%)"
-        fi
+            msg="*Summary of ${interval_min} min (${duration}s)*\
+		        %0A Low: R$ ${summary_low}\
+		        %0AHigh: R$ ${summary_high}\
+		        %0A Last: R$ ${last}"
+
+            if [[ ! -z ${btc_brl} ]]; then
+                msg+="%0APrice: R$ ${btc_brl} (${percent_total}%)"
+            fi
         ;;
 	esac
 
     curl -s --output /dev/null -X POST \
     https://api.telegram.org/bot${telegram_token}/sendMessage \
     -d chat_id=${telegram_chat_id} -d parse_mode="Markdown" \
-    -d text=$"${msg}
-\`${name}\`"
+    -d text=$"${msg}%0A\`${name}\`"
 }
