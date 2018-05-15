@@ -16,7 +16,7 @@ $ [sudo] apt-get install sox
 
 Create/Use `config.txt` file to set some scripts configurations (API, Alarm sound file, BTC value, Exchange infos and Telegram):
 
-*api_config.txt*
+*config.txt*
 ```
 api_ticker="<URL>"
 alarm_sound="<FILE_PATH>"
