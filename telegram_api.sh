@@ -14,7 +14,7 @@ send_to_telegram()
     case $1 in
         "config")
             msg="New alarm ${simbol} (${interval_min} min)\
-                 %0AR$ ${alarm}"
+                 %0A${currency} ${alarm}"
 
             if [[ ! -z ${btc} ]]; then
                 msg+="%0ABTC ${btc}"
@@ -23,25 +23,25 @@ send_to_telegram()
             msg="*${msg}*"
         ;;
         "update")
-            msg="*$2: R$ ${last}*"
+            msg="*$2: ${currency} ${last}*"
         ;;
         "alarm")
-            msg="*Alarm: R$ ${last} ${simbol}*\
-                 %0A   Buy: R$ ${buy}\
-                 %0A   Sell: R$ ${sell}"
+            msg="*Alarm: ${currency} ${last} ${simbol}*\
+                 %0A   Buy: ${currency} ${buy}\
+                 %0A   Sell: ${currency} ${sell}"
 
             if [[ ! -z ${btc_brl} ]]; then
-                msg+="%0A*Price: R$ ${btc_brl}* (${percent_total}%)"
+                msg+="%0A*Price: ${currency} ${btc_brl}* (${percent_total}%)"
             fi
         ;;
         "summary")
             msg="*Summary of ${interval_min} min (${duration}s)*\
-                %0A Low: R$ ${summary_low}\
-                %0AHigh: R$ ${summary_high}\
-                %0A Last: R$ ${last}"
+                %0A Low: ${currency} ${summary_low}\
+                %0AHigh: ${currency} ${summary_high}\
+                %0A Last: ${currency} ${last}"
 
             if [[ ! -z ${btc_brl} ]]; then
-                msg+="%0APrice: R$ ${btc_brl} (${percent_total}%)"
+                msg+="%0APrice: ${currency} ${btc_brl} (${percent_total}%)"
             fi
         ;;
     esac

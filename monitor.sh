@@ -93,7 +93,7 @@ setup()
     fi
 
     if [[ -z ${trade_fee} ]]; then
-        # Default passive trade fee: 0,25% (Foxbit)
+        # Default passive trade fee: 0,25%
         trade_fee=0.25
     fi
 
@@ -107,12 +107,16 @@ setup()
         time_interval=600
     fi
 
+    if [[ -z ${currency} ]]; then
+        currency="$"
+    fi
+
     DATE=`date '+%d-%m-%y %H:%M:%S'`
     interval_min=`echo "${time_interval} / 60" | bc`
     percent_total=`echo "scale=2;100 - ${trade_fee} / 1" | bc -l`
 
     echo -e "${COLOR}[${DATE}] ${BOLD}Setting alarm mode to: ${simbol_utf8}"\
-            "\n\t\t    Setting alarm value to: R$ ${alarm}"\
+            "\n\t\t    Setting alarm value to: ${currency} ${alarm}"\
             "\n\t\t    Setting summary interval to: ${time_interval}s "\
             "(${interval_min} min)${STYLE_END}"
 }
@@ -148,21 +152,22 @@ monitor()
         if [[ ! -z ${btc} ]]; then
             btc_brl=`echo "(${btc} * (${percent_total} / 100)) * ${last}" | bc -l`
             btc_brl=`echo "scale=2;${btc_brl} / 1" | bc -l`
-            mode_btc_brl="[R$ ${btc_brl}]"
+            mode_btc_brl="[${currency} ${btc_brl}]"
         fi
 
         mask_last=`echo "scale=2;${last} / 1" | bc -l`
 
         if [[ ("${last_prev%.*}" -lt "${last%.*}" && ${descending} == false)
             || ("${last_prev%.*}" -gt "${last%.*}" && ${descending} == true) ]]; then
-            mode_last="${mode_color}${simbol_utf8} R$ ${mask_last}${STYLE_END}"
+            mode_last="${mode_color}${simbol_utf8} ${currency} ${mask_last} ${STYLE_END}"
             mode_btc_brl="${mode_color}${mode_btc_brl}${STYLE_END}"
         else
-            mode_last="\xE2\xA4\xBA R$ ${mask_last}"
+            mode_last="\xE2\xA4\xBA ${currency} ${mask_last}"
         fi
 
         echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_last} |"\
-                "\xE2\xA4\x93 R$ ${low} | \xE2\xA4\x92 R$ ${high} ${mode_btc_brl}"
+                "\xE2\xA4\x93 ${currency} ${low} | \xE2\xA4\x92 ${currency}"\
+                "${high} ${mode_btc_brl}"
 
         if [[ "${high%.*}" -eq "${last%.*}"
             && "${high_prev%.*}" -lt "${high%.*}" ]]; then
@@ -181,9 +186,9 @@ monitor()
         if [[ (${diff} -lt 0 && ${descending} == true)
             || (${diff} -gt 0 && ${descending} == false) ]]; then
             echo -e "${COLOR}${HEADER} ${DATE} ${HEADER}${STYLE_END}"\
-                    "\n\n\t\t\t ${BOLD}[\xE2\x9C\x96] Value found: R$ ${last}"\
-                    "${STYLE_END}\n\t\t\t [i] Buy: R$ ${buy} | Sell: R$ ${sell}"\
-                    "\n\n${COLOR}${FOOTER}${STYLE_END}"
+                    "\n\n\t\t\t ${BOLD}[\xE2\x9C\x96] Value found: ${currency}"\
+                    "${last}${STYLE_END}\n\t\t\t [i] Buy: ${currency} ${buy} |"\
+                    "Sell: ${currency} ${sell}\n\n${COLOR}${FOOTER}${STYLE_END}"
 
             if [[ -z ${mute} ]]; then
                 play ${alarm_sound} 2> /dev/null
@@ -194,7 +199,7 @@ monitor()
             alarm=${last}
 
             echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_color}${action}"\
-                    "alarm value to last: R$ ${alarm}${STYLE_END}"
+                    "alarm value to last: ${currency} ${alarm}${STYLE_END}"
         fi
 
         # Metrics for summary

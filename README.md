@@ -21,6 +21,7 @@ Create/Use `config.txt` file to set some scripts configurations (API, Alarm soun
 api_ticker="<URL>"
 alarm_sound="<FILE_PATH>"
 btc="<BTC_VALUE>"
+currency="<CURRENCY_SYMBOL>"
 trade_fee="<EXCHANGE_TRADE_FEE>"
 telegram_token="<TOKEN>"
 telegram_chat_id="<CHAT_ID>"
