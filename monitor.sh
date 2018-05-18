@@ -8,6 +8,74 @@ BOLD="\033[1m"
 UNDERLINE="\033[4m"
 STYLE_END="\033[0m"
 
+while getopts "v:n:t:c:admh" opt; do
+    case $opt in
+        a)
+            simbol="↗"
+            simbol_utf8="\xE2\x86\x97"
+            mode="Ascending ${simbol}"
+            descending=false
+            action="Increasing"
+            mode_color="\033[1;32m"
+        ;;
+        d) 
+            simbol="↘"
+            simbol_utf8="\xE2\x86\x98"
+            mode="Descending ${simbol}"
+            descending=true
+            action="Decreasing"
+            mode_color="\033[1;31m"
+        ;;
+        v) 
+            alarm="${OPTARG}"
+            last_prev="${alarm}"
+        ;;
+        n) 
+            name="${OPTARG}"
+        ;;
+        t) 
+            time_interval="${OPTARG}"
+        ;;
+        c)  
+            case ${OPTARG} in
+                "black"|0) 
+                    COLOR="\033[0;30m"
+                ;;
+                "blue"|1) 
+                    COLOR="\033[0;34m"
+                ;;
+                "cyan"|2) 
+                    COLOR="\033[0;36m"
+                ;;
+                "green"|3) 
+                    COLOR="\033[0;32m"
+                ;;
+                "purple"|4) 
+                    COLOR="\033[0;35m"
+                ;;
+                "red"|5) 
+                    COLOR="\033[0;31m"
+                ;;
+                "white"|6) 
+                    COLOR="\033[0;37m"
+                ;;
+                "yellow"|7) 
+                    COLOR="\033[0;33m"
+                ;;
+            esac
+        ;;
+        m) 
+            mute=true
+        ;;
+        h|\?) 
+            echo "-v <alarm_value> -a (Ascending) -d (Descending) "\
+                 "-n <instance_name> -t <summary_interval_in_seconds> "\
+                 "-c <identification_color> -m (Mute)"
+            exit
+        ;;
+    esac
+done
+
 setup()
 {
     # Validate optargs
@@ -151,74 +219,6 @@ monitor()
         fi
     done
 }
-
-while getopts "v:n:t:c:admh" opt; do
-    case $opt in
-        a)
-            simbol="↗"
-            simbol_utf8="\xE2\x86\x97"
-            mode="Ascending ${simbol}"
-            descending=false
-            action="Increasing"
-            mode_color="\033[1;32m"
-        ;;
-        d) 
-            simbol="↘"
-            simbol_utf8="\xE2\x86\x98"
-            mode="Descending ${simbol}"
-            descending=true
-            action="Decreasing"
-            mode_color="\033[1;31m"
-        ;;
-        v) 
-            alarm="${OPTARG}"
-            last_prev="${alarm}"
-        ;;
-        n) 
-            name="${OPTARG}"
-        ;;
-        t) 
-            time_interval="${OPTARG}"
-        ;;
-        c)  
-            case ${OPTARG} in
-                "black"|0) 
-                    COLOR="\033[0;30m"
-                ;;
-                "blue"|1) 
-                    COLOR="\033[0;34m"
-                ;;
-                "cyan"|2) 
-                    COLOR="\033[0;36m"
-                ;;
-                "green"|3) 
-                    COLOR="\033[0;32m"
-                ;;
-                "purple"|4) 
-                    COLOR="\033[0;35m"
-                ;;
-                "red"|5) 
-                    COLOR="\033[0;31m"
-                ;;
-                "white"|6) 
-                    COLOR="\033[0;37m"
-                ;;
-                "yellow"|7) 
-                    COLOR="\033[0;33m"
-                ;;
-            esac
-        ;;
-        m) 
-            mute=true
-        ;;
-        h|\?) 
-            echo "-v <alarm_value> -a (Ascending) -d (Descending) "\
-                 "-n <instance_name> -t <summary_interval_in_seconds> "\
-                 "-c <identification_color> -m (Mute)"
-            exit
-        ;;
-    esac
-done
 
 setup
 

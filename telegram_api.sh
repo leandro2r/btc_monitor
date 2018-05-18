@@ -2,7 +2,7 @@
 
 send_to_telegram()
 {
-	if [[ (-z ${telegram_token}) || (-z ${telegram_chat_id}) 
+    if [[ (-z ${telegram_token}) || (-z ${telegram_chat_id}) 
            || (! -z ${mute}) ]]; then
         return 0
     fi
@@ -21,30 +21,30 @@ send_to_telegram()
             fi
 
             msg="*${msg}*"
-		;;
+        ;;
         "update")
             msg="*$2: R$ ${last}*"
         ;;
-    	"alarm")
+        "alarm")
             msg="*Alarm: R$ ${last} ${simbol}*\
                  %0A   Buy: R$ ${buy}\
-		         %0A   Sell: R$ ${sell}"
+                 %0A   Sell: R$ ${sell}"
 
             if [[ ! -z ${btc_brl} ]]; then
                 msg+="%0A*Price: R$ ${btc_brl}* (${percent_total}%)"
             fi
-		;;
+        ;;
         "summary")
             msg="*Summary of ${interval_min} min (${duration}s)*\
-		        %0A Low: R$ ${summary_low}\
-		        %0AHigh: R$ ${summary_high}\
-		        %0A Last: R$ ${last}"
+                %0A Low: R$ ${summary_low}\
+                %0AHigh: R$ ${summary_high}\
+                %0A Last: R$ ${last}"
 
             if [[ ! -z ${btc_brl} ]]; then
                 msg+="%0APrice: R$ ${btc_brl} (${percent_total}%)"
             fi
         ;;
-	esac
+    esac
 
     curl -s --output /dev/null -X POST \
     https://api.telegram.org/bot${telegram_token}/sendMessage \
