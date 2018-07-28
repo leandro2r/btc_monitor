@@ -156,6 +156,8 @@ monitor()
         fi
 
         mask_last=`echo "scale=2;${last} / 1" | bc -l`
+        mask_low=`echo "scale=2;${low} / 1" | bc -l`
+        mask_high=`echo "scale=2;${high} / 1" | bc -l`
 
         if [[ ("${last_prev%.*}" -lt "${last%.*}" && ${descending} == false)
             || ("${last_prev%.*}" -gt "${last%.*}" && ${descending} == true) ]]; then
@@ -166,8 +168,8 @@ monitor()
         fi
 
         echo -e "${COLOR}[${DATE}]${STYLE_END} ${mode_last} |"\
-                "\xE2\xA4\x93 ${currency} ${low} | \xE2\xA4\x92 ${currency}"\
-                "${high} ${mode_btc_brl}"
+                "\xE2\xA4\x93 ${currency} ${mask_low} | \xE2\xA4\x92 ${currency}"\
+                "${mask_high} ${mode_btc_brl}"
 
         if [[ "${high%.*}" -eq "${last%.*}"
             && "${high_prev%.*}" -lt "${high%.*}" ]]; then
