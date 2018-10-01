@@ -1,3 +1,6 @@
-# api: wss://apifoxbitprodlb.alphapoint.com/WSGateway/
-# currency: R$
+# ========================== BTC Monitor Config ==========================
 # api: https://www.bitstamp.net/api/v2/ticker/btcusd/
+# currency: $
+# mute: False
+# sound: media/alarm.mp3
+# value: 0

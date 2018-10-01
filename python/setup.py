@@ -34,8 +34,10 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'requests',
+        'playsound',
         'PyYaml',
+        'requests',
+        'vext.gi',
         'websocket-client',
     ],
     extras_require={
