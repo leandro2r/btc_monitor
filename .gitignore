@@ -1,2 +1,3 @@
 shell/config.txt
 python/venv
+*.yml
