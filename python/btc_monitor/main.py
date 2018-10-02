@@ -7,6 +7,7 @@ import json
 import logging
 import requests
 import time
+import re
 import sys
 import websocket
 import yaml
@@ -53,6 +54,7 @@ class BTC():
         # self.log_config()
         self.config_load()
         self.arg_parser()
+        self.ticker.update({'api': self.config['api']})
 
         self.ticker.update({'api': self.config['api']})
 
@@ -112,13 +114,14 @@ class BTC():
 
         return payload
 
-    def ws_call(self, url, payload=''):
+    def ws_call(self, url, payload={}):
         try:
             # Foxbit
             req = {
                 'm': 0,
                 'i': 0,
-                'n': 'GetTickerHistory',
+                'n': 'SubscribeTicker',
+                # 'n': 'GetTickerHistory',
                 'o': '',
             }
 
@@ -128,16 +131,25 @@ class BTC():
 
             req['o'] = json.dumps({
                 'InstrumentId': 1,
-                'FromDate': posix_dt,
+                # 'FromDate': posix_dt,
+                'OMSId': 1,
+                'Interval': 60,
+                'IncludeLastCount': 1,
             })
 
             api = websocket.create_connection(url)
             api.send(json.dumps(req))
-            payload = json.loads(api.recv())
+            output = json.loads(api.recv())['o']
             api.close()
 
-            print(json.dumps(req))
-            print(json.dumps(payload))
+            output = eval(output)
+            output = str(output[0]).split(',')
+
+            payload = {
+                'high': output[1].strip(),
+                'last': output[7].strip(),
+                'low': output[2].strip(),
+            }
         except websocket.WebSocketConnectionClosedException as error:
             print('Failed to connect: {}'.format(error))
 
