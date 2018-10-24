@@ -7,7 +7,7 @@ Repository version module
 import datetime
 import subprocess
 import re
-import os.path
+import os
 
 
 class RepositoryVersion(object):
@@ -15,28 +15,37 @@ class RepositoryVersion(object):
     repository_path = '/etc/btc_monitor/'
 
     def get_branch(self):
-        command = 'echo `git log -n 1 --merges --pretty=format:"%s" '\
-                  '| grep -E "(\'\w+\')$" -o | tail -1`'
-        branch = subprocess.check_output(command, stderr=subprocess.PIPE,
-                                         shell=True).decode('utf-8')
+        command = 'echo `git log -n 1 --merges \
+                   --pretty=format:"%s" | tail -1`'
+        branch = ''
 
-        return re.sub('\n|\'', '', branch)
+        commit_msg = subprocess.check_output(
+            command,
+            stderr=subprocess.PIPE,
+            shell=True,
+        ).decode('utf-8').strip()
+
+        if commit_msg:
+            branch = re.search(r'(\'\S+\')$', commit_msg).group(1)
+
+        return re.sub('\'', '', branch)
 
     def get_version(self):
+        command = 'git describe --tags --dirty'
+        file = False
+
         try:
             branch = self.get_branch()
 
             if branch == 'dev':
                 command = 'git log -1 --pretty=format:\'dev-g%h\n\''
-            else:
-                command = 'git describe --tags --dirty'
 
-            tag = subprocess.check_output(command, stderr=subprocess.PIPE,
-                                          shell=True).decode('utf-8')
-
+            tag = subprocess.check_output(
+                command,
+                stderr=subprocess.PIPE,
+                shell=True,
+            ).decode('utf-8')
         except subprocess.CalledProcessError:
-            file = False
-
             try:
                 file = open(self.filename, 'r')
             except IOError:
