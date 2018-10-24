@@ -1,0 +1,3 @@
+recursive-include btc_monitor/media *
+recursive-include extras *
+include .version
