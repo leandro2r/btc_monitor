@@ -56,8 +56,6 @@ class BTC():
         self.arg_parser()
         self.ticker.update({'api': self.config['api']})
 
-        self.ticker.update({'api': self.config['api']})
-
         for key, value in self.config.items():
             if value != 0:
                 print('\t\t    {}: {}'.format(key, value))
@@ -67,12 +65,12 @@ class BTC():
         print('[{}] {}'.format(now, msg))
 
     def config_load(self):
-        with open(self.config_file, 'r') as file:
-            try:
+        try:
+            with open(self.config_file, 'r') as file:
                 self.config.update(yaml.safe_load(file))
                 src = self.config_file
-            except Exception as error:
-                src = 'default'
+        except Exception as error:
+            src = 'default'
 
         self.log('Setting config from {}...'.format(src))
 
@@ -108,9 +106,15 @@ class BTC():
 
     def http_call(self, url, payload=''):
         try:
-            payload = requests.get(url, stream=True).json()
+            payload = requests.get(url, stream=True)
         except requests.exceptions.RequestException as error:
             print('Failed to connect: {}'.format(error))
+
+        try:
+            payload = payload.json()
+        except:
+            print('Failed to parse json')
+            payload = ''
 
         return payload
 
@@ -172,7 +176,7 @@ class BTC():
         else:
             if value < target:
                 gotcha = True
-        
+
         if gotcha:
             if not self.config['mute']:
                 with open(self.config['sound'], 'rb') as file:
@@ -203,15 +207,16 @@ class BTC():
         res = self.connect()
         while not res:
             print('Trying to reconnect...')
-            time.sleep(3)
+            time.sleep(1)
             res = self.connect()
 
-        if (config['mode'] == 'ascending' and
-             float(res['last']) > float(ticker['last'])):
-            last = '{}{}'.format(color['green'], symbol['asc'])
-        elif (config['mode'] == 'descending' and
-              float(res['last']) < float(ticker['last'])):
-            last = '{}{}'.format(color['red'], symbol['desc'])
+        if config.get('mode'):
+            if (config['mode'] == 'ascending' and
+                 float(res['last']) > float(ticker['last'])):
+                last = '{}{}'.format(color['green'], symbol['asc'])
+            elif (config['mode'] == 'descending' and
+                  float(res['last']) < float(ticker['last'])):
+                last = '{}{}'.format(color['red'], symbol['desc'])
 
         ticker.update(res)
 
@@ -226,7 +231,7 @@ class BTC():
         if config.get('mode') and ticker['last'] != 0:
             if config['value'] > 0:
                 value = self.alarm(
-                    config['value'], 
+                    config['value'],
                     float(res['last']),
                     config['mode'],
                     color,
@@ -252,5 +257,5 @@ if __name__ == '__main__':
         while True:
             Monitor.monitor()
     except KeyboardInterrupt:
-        print('\nExiting...')
+        print(' Exiting...')
         sys.exit(1)
