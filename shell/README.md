@@ -1,9 +1,4 @@
-# BTC Monitor Script
-
-### Description
-
-This script monitors the bitcoin value from btc exchange using API (Bitstamp as default) and notifies if the **Alarm**, **High** or **Low** value has been catched up.
-The notices can also be sent by a Telegram BOT.
+# BTC Monitor Script (Shell)
 
 ### Requirements
 
