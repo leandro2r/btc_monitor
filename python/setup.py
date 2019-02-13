@@ -46,7 +46,7 @@ setup(
     data_files=[('.', ['.version'])],
     entry_points={
         'console_scripts': [
-            'btc_monitor=btc_monitor.__main__:main',
+            'btc_monitor=btc_monitor.main:main',
         ],
     },
     platforms='any',
@@ -57,7 +57,7 @@ setup(
     classifiers=[
         'Environment :: Console',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.7',
     ],
     keywords=[],
     url='https://github.com/leandro2r/btc_monitor',

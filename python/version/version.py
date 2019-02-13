@@ -15,20 +15,26 @@ class RepositoryVersion(object):
     repository_path = '/etc/btc_monitor/'
 
     def get_branch(self):
-        command = 'echo `git log -n 1 --merges \
-                   --pretty=format:"%s" | tail -1`'
-        branch = ''
+        # Gitlab CI_COMMIT_TAG and CI_COMMIT_REF_NAME variables
+        if os.environ.get('CI_COMMIT_TAG'):
+            branch = os.environ['CI_COMMIT_TAG']
+        elif os.environ.get('CI_COMMIT_REF_NAME'):
+            branch = os.environ['CI_COMMIT_REF_NAME']
+        else:
+            command = 'echo `git log -n 1 --merges \
+                    --pretty=format:"%s" | tail -1`'
+            branch = ''
 
-        commit_msg = subprocess.check_output(
-            command,
-            stderr=subprocess.PIPE,
-            shell=True,
-        ).decode('utf-8').strip()
+            commit_msg = subprocess.check_output(
+                command,
+                stderr=subprocess.PIPE,
+                shell=True,
+            ).decode('utf-8').strip()
 
-        if commit_msg:
-            branch = re.search(r'(\'\S+\')$', commit_msg).group(1)
+            if commit_msg:
+                branch = re.search(r'(\S+)$', commit_msg).group(1)
 
-        return re.sub('\'', '', branch)
+            return re.sub('\'', '', branch)
 
     def get_version(self):
         command = 'git describe --tags --dirty'

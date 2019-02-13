@@ -14,8 +14,8 @@ import yaml
 
 
 class BTC():
-    config_file = 'btc_monitor.yml'
-    log_path = '/var/log/btc_monitor/run.log'
+    CONFIG_FILE = os.environ.get('CONFIG_FILE', '/etc/btc_monitor/btc_monitor.yml')
+    LOG_PATH = os.environ.get('LOG_PATH', '/var/log/btc_monitor/run.log')
 
     config = {
         # Default API from Bitstamp
@@ -50,25 +50,25 @@ class BTC():
         }
     }
 
-    def __init__(self):
-        # self.log_config()
-        self.config_load()
-        self.arg_parser()
-        self.ticker.update({'api': self.config['api']})
-
-        for key, value in self.config.items():
-            if value != 0:
-                print('\t\t    {}: {}'.format(key, value))
-
     def log(self, msg):
         now = datetime.now().strftime('%d-%m-%y %H:%M:%S')
         print('[{}] {}'.format(now, msg))
 
+    def dict_update(cur, new):
+        for key, value in new.items():
+            if isinstance(value, collections.Mapping):
+                cur[key] = dict_update(cur.get(key, {}), value)
+            else:
+                cur[key] = value
+        return cur
+
     def config_load(self):
         try:
-            with open(self.config_file, 'r') as file:
-                self.config.update(yaml.safe_load(file))
-                src = self.config_file
+            with open(self.CONFIG_FILE, 'r') as file:
+                yml = yaml.load(file)
+                if yml:
+                    self.dict_update(self.config, yml)
+                src = self.CONFIG_FILE
         except Exception as error:
             src = 'default'
 
@@ -100,7 +100,7 @@ class BTC():
 
     def log_config(self):
         FORMAT = '[%(asctime)s] %(message)s'
-        logging.basicConfig(filename=self.log_path,
+        logging.basicConfig(filename=self.LOG_PATH,
                             level=logging.INFO,
                             format=FORMAT)
 
@@ -248,9 +248,19 @@ class BTC():
                         )
                     )
                     config.update({'value': value})
+    
+    def __init__(self):
+        # self.log_config()
+        self.config_load()
+        self.arg_parser()
+        self.ticker.update({'api': self.config['api']})
+
+        for key, value in self.config.items():
+            if value != 0:
+                print('\t\t    {}: {}'.format(key, value))
 
 
-if __name__ == '__main__':
+def main():
     Monitor = BTC()
 
     try:
@@ -259,3 +269,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print(' Exiting...')
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

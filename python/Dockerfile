@@ -1,0 +1,27 @@
+FROM python:3.7-alpine
+
+ARG CI_COMMIT_TAG=dev
+
+ENV TZ=America/Sao_Paulo
+ENV VERSION=$CI_COMMIT_TAG
+
+RUN apk update && apk --no-cache add \
+    tzdata \
+    build-base \
+    py-pip && \
+    pip install -U pip setuptools
+
+COPY . /home/btc_monitor
+COPY extras/btc_monitor /etc/btc_monitor
+
+RUN ./setup.py install
+
+RUN find /etc/btc_monitor/* -type f -exec sh -c 'cp -f {} {}.example' \;
+RUN mkdir -p /var/log/btc_monitor
+
+RUN apk del py-pip && rm -rf /home/btc_monitor
+
+WORKDIR /etc/btc_monitor
+
+ENTRYPOINT ["btc_monitor"]
+# CMD [""]
