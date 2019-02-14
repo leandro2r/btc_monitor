@@ -1,9 +1,11 @@
+README.md
+Dockerfile
+docker-compose.yml
+.git*
+.*ignore
 __pycache__/
 build/
 dist/
-MANIFEST.in
-README.md
-Dockerfile
 .DS_STORE
 *.pyc
 *.egg-info

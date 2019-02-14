@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  btc_monitor:
+    image: leandro2r/btc_monitor:latest-python
+    volumes:
+      - .:/home/btc_monitor
+      - ./extras/btc_monitor:/etc/btc_monitor
+    entrypoint: "tail -f /dev/null"
