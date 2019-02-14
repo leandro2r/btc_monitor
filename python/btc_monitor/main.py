@@ -3,10 +3,12 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from playsound import playsound
+import collections.abc as collections
 import json
 import logging
 import requests
 import time
+import os
 import re
 import sys
 import websocket
@@ -54,10 +56,10 @@ class BTC():
         now = datetime.now().strftime('%d-%m-%y %H:%M:%S')
         print('[{}] {}'.format(now, msg))
 
-    def dict_update(cur, new):
+    def dict_update(self, cur, new):
         for key, value in new.items():
             if isinstance(value, collections.Mapping):
-                cur[key] = dict_update(cur.get(key, {}), value)
+                cur[key] = self.dict_update(cur.get(key, {}), value)
             else:
                 cur[key] = value
         return cur
@@ -124,8 +126,8 @@ class BTC():
             req = {
                 'm': 0,
                 'i': 0,
-                'n': 'SubscribeTicker',
-                # 'n': 'GetTickerHistory',
+                # 'n': 'SubscribeTicker',
+                'n': 'GetTickerHistory',
                 'o': '',
             }
 
@@ -135,10 +137,10 @@ class BTC():
 
             req['o'] = json.dumps({
                 'InstrumentId': 1,
-                # 'FromDate': posix_dt,
-                'OMSId': 1,
-                'Interval': 60,
-                'IncludeLastCount': 1,
+                'FromDate': posix_dt,
+                # 'OMSId': 1,
+                # 'Interval': 60,
+                # 'IncludeLastCount': 1,
             })
 
             api = websocket.create_connection(url)

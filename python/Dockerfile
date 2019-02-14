@@ -14,12 +14,14 @@ RUN apk update && apk --no-cache add \
 COPY . /home/btc_monitor
 COPY extras/btc_monitor /etc/btc_monitor
 
-RUN ./setup.py install
+RUN cd /home/btc_monitor &&\
+    ./setup.py install
 
 RUN find /etc/btc_monitor/* -type f -exec sh -c 'cp -f {} {}.example' \;
 RUN mkdir -p /var/log/btc_monitor
 
-RUN apk del py-pip && rm -rf /home/btc_monitor
+RUN apk del py-pip &&\
+    rm -rf /home/btc_monitor
 
 WORKDIR /etc/btc_monitor
 
