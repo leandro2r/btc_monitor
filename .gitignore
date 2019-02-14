@@ -1,1 +1,9 @@
-config.txt
+shell/config.txt
+python/venv
+*.yml
+build
+dist
+*.egg-info
+*.pyc
+__pycache__
+.version
