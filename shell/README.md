@@ -1,4 +1,4 @@
-# BTC Monitor Script (Shell)
+# BTC Monitor (Shell Script)
 
 ### Requirements
 

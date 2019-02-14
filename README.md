@@ -1,4 +1,4 @@
-# BTC Monitor Script
+# BTC Monitor
 
 ### Description
 

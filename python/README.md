@@ -1,4 +1,4 @@
-# BTC Monitor Script (Python)
+# BTC Monitor (Python)
 
 ### Requirements
 

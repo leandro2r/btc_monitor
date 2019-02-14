@@ -1,0 +1,6 @@
+#telegram_token=""
+#telegram_chat_id=""
+#btc="0"
+api_ticker="https://www.bitstamp.net/api/v2/ticker/btcusd/"
+#api_ticker="https://www.mercadobitcoin.net/api/BTC/ticker/"
+#json_object=true
