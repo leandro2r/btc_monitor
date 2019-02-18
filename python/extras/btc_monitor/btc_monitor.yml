@@ -1,6 +1,9 @@
 # ========================== BTC Monitor Config ==========================
-# api: wss://apifoxbitprod.alphapoint.com/WSGateway/
+
+# Foxbit watcher REST API
+# api: http://watcher.foxbit.com.br/api/Ticker?exchange=Foxbit
 # currency: R$
+
 # api: https://www.bitstamp.net/api/v2/ticker/btcusd/
 # currency: $
 # mute: False

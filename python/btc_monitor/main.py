@@ -58,6 +58,7 @@ class BTC():
 
     def dict_update(self, cur, new):
         for key, value in new.items():
+            key = key.lower()
             if isinstance(value, collections.Mapping):
                 cur[key] = self.dict_update(cur.get(key, {}), value)
             else:
@@ -203,14 +204,17 @@ class BTC():
         ticker = self.ticker
         color = self.metadata['color']
         symbol = self.metadata['symbol']
-
         last = self.metadata['symbol']['last']
 
-        res = self.connect()
-        while not res:
-            print('Trying to reconnect...')
+        res = {}
+
+        d = self.connect()
+        while not d:
+            print('Trying to connect...')
             time.sleep(1)
-            res = self.connect()
+            d = self.connect()
+
+        self.dict_update(res, d)
 
         if config.get('mode'):
             if (config['mode'] == 'ascending' and
