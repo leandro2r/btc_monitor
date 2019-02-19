@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  python_version: &btc_monitor
+  python: &btc_monitor
     image: leandro2r/btc_monitor:latest-python
     privileged: true
     devices:
@@ -9,10 +9,15 @@ services:
     volumes:
       - ./python:/home/btc_monitor
       - ./python/extras/btc_monitor:/etc/btc_monitor
+    # environment:
+    #   - API=http://watcher.foxbit.com.br/api/Ticker?exchange=Foxbit
+    #   - CONFIG_FILE=/etc/btc_monitor/btc_monitor.yml
+    #   - LOG_PATH=/var/log/btc_monitor/run.log
+    #   - SOUND_FILE=/opt/btc_monitor/media/alarm.mp3
     entrypoint: "tail -f /dev/null"
     # command: ["-v", "1000", "-a", "-m"]
 
-  shell_version:
+  shell:
     <<: *btc_monitor
     image: leandro2r/btc_monitor:latest-shell
     volumes:
