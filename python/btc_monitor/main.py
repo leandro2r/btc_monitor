@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import requests
+import subprocess
 import sys
 import time
 import websocket
@@ -17,13 +18,14 @@ import yaml
 class BTC():
     CONFIG_FILE = os.environ.get('CONFIG_FILE', '/etc/btc_monitor/btc_monitor.yml')
     LOG_PATH = os.environ.get('LOG_PATH', '/var/log/btc_monitor/run.log')
+    SOUND_FILE = os.environ.get('SOUND_FILE', '/opt/btc_monitor/media/alarm.mp3')
 
     config = {
         # Default API from Bitstamp
         'api': 'https://www.bitstamp.net/api/v2/ticker/btcusd/',
         'currency': '$',
         'mute': False,
-        'sound': 'media/alarm.mp3',
+        'sound': SOUND_FILE,
         'value': 0,
     }
 
@@ -197,7 +199,11 @@ class BTC():
             if not self.config['mute']:
                 try:
                     with open(self.config['sound'], 'rb') as file:
-                        os.system('play {}'.format(self.config['sound']))
+                        subprocess.check_call(
+                            'play {}'.format(self.config['sound']), 
+                            stderr=subprocess.PIPE, 
+                            shell=True,
+                        )
                 except OSError as msg:
                     self.log(
                         'Error on playing alarm sound: {}'.format(msg)
