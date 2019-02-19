@@ -17,6 +17,7 @@ import yaml
 
 class BTC():
     API = os.environ.get('API', 'https://www.bitstamp.net/api/v2/ticker/btcusd/')
+    COLOR_ID = os.environ.get('COLOR_ID', 'white')
     CONFIG_FILE = os.environ.get('CONFIG_FILE', '/etc/btc_monitor/btc_monitor.yml')
     LOG_PATH = os.environ.get('LOG_PATH', '/var/log/btc_monitor/run.log')
     SOUND_FILE = os.environ.get('SOUND_FILE', '/opt/btc_monitor/media/alarm.mp3')
@@ -25,6 +26,7 @@ class BTC():
         # Default API from Bitstamp
         'api': API,
         'currency': '$',
+        'color': COLOR_ID,
         'mute': False,
         'sound': SOUND_FILE,
         'value': 0,
@@ -37,13 +39,6 @@ class BTC():
     }
 
     metadata = {
-        'color': {
-            'green': '\033[1;32m',
-            'none': '\033[0m',
-            'red': '\033[1;31m',
-            'white': '\033[1m',
-            'yellow': '\033[1;33m',
-        },
         'symbol': {
             'asc': b'\xE2\x86\x97'.decode('utf-8'),
             'desc': b'\xE2\x86\x98'.decode('utf-8'),
@@ -54,9 +49,42 @@ class BTC():
         }
     }
 
+    def log_format(self, bold = False, color = ''):
+        d = {
+            'black': '\033[{};30m'.format(int(bold)),
+            'blue': '\033[{};33m'.format(int(bold)),
+            'cyan': '\033[{};36m'.format(int(bold)),
+            'green': '\033[{};32m'.format(int(bold)),
+            'purple': '\033[{};35m'.format(int(bold)),
+            'red': '\033[{};31m'.format(int(bold)),
+            'white': '\033[{}m'.format(int(bold)),
+            'yellow': '\033[{};33m'.format(int(bold)),
+        }
+
+        if not color:
+            color = self.config['color']
+
+        return d.get(color, d['white'])
+
+    def log_config(self):
+        FORMAT = '{}[%(asctime)s]{} %(message)s'.format(
+            self.log_format(),
+            self.log_format(),
+        )
+        logging.basicConfig(filename=self.LOG_PATH,
+                            level=logging.INFO,
+                            format=FORMAT)
+
     def log(self, msg):
         now = datetime.now().strftime('%d-%m-%y %H:%M:%S')
-        print('[{}] {}'.format(now, msg))
+        print(
+            '{}[{}]{} {}'.format(
+                self.log_format(),
+                now,
+                self.log_format(),
+                msg,                
+            )
+        )
 
     def dict_update(self, cur, new):
         for key, value in new.items():
@@ -86,6 +114,8 @@ class BTC():
                             help='Ascending')
         parser.add_argument('-d', '--descending', action='store_true',
                             help='Descending')
+        parser.add_argument('-c', '--color', type=str, 
+                            help='Identification color')
         parser.add_argument('-m', '--mute', action='store_true',
                             help='Mute')
         parser.add_argument('-v', '--value', type=float, help='Value')
@@ -95,6 +125,9 @@ class BTC():
         if args.value:
             self.config['value'] = args.value
 
+        if args.color:
+            self.config['color'] = args.color
+
         if args.mute:
             self.config['mute'] = True
 
@@ -102,12 +135,6 @@ class BTC():
             self.config['mode'] = 'ascending'
         elif args.descending:
             self.config['mode'] = 'descending'
-
-    def log_config(self):
-        FORMAT = '[%(asctime)s] %(message)s'
-        logging.basicConfig(filename=self.LOG_PATH,
-                            level=logging.INFO,
-                            format=FORMAT)
 
     def http_call(self, url, payload=''):
         try:
@@ -172,7 +199,7 @@ class BTC():
 
         return payload
 
-    def alarm(self, target, value, mode, color, symbol):
+    def alarm(self, target, value, mode, symbol):
         gotcha = False
 
         if mode == 'ascending':
@@ -187,11 +214,11 @@ class BTC():
                 '{}{}\n\n'
                 '\t\t\t   [{}] Value found: {} {}\n\n'
                 '{}{}'.format(
-                    color['white'], '#'*55,
+                    self.log_format(True), '#'*55,
                     symbol['target'],
                     self.config['currency'],
                     value,
-                    '#'*75, color['none'],
+                    '#'*75, self.log_format(),
                 )
             )
 
@@ -215,7 +242,6 @@ class BTC():
     def monitor(self):
         config = self.config
         ticker = self.ticker
-        color = self.metadata['color']
         symbol = self.metadata['symbol']
         last = self.metadata['symbol']['last']
 
@@ -232,16 +258,16 @@ class BTC():
         if config.get('mode'):
             if (config['mode'] == 'ascending' and
                  float(res['last']) > float(ticker['last'])):
-                last = '{}{}'.format(color['green'], symbol['asc'])
+                last = '{}{}'.format(self.log_format(True, 'green'), symbol['asc'])
             elif (config['mode'] == 'descending' and
                   float(res['last']) < float(ticker['last'])):
-                last = '{}{}'.format(color['red'], symbol['desc'])
+                last = '{}{}'.format(self.log_format(True, 'red'), symbol['desc'])
 
         ticker.update(res)
 
         self.log(
-            '{} {} {} {}| {} {} {} | {} {} {} '.format(
-                last, config['currency'], ticker['last'], color['none'],
+            '{} {} {} {} | {} {} {} | {} {} {} '.format(
+                last, config['currency'], ticker['last'], self.log_format(),
                 symbol['low'], config['currency'], ticker['low'],
                 symbol['high'], config['currency'], ticker['high'],
             )
@@ -253,25 +279,24 @@ class BTC():
                     config['value'],
                     float(res['last']),
                     config['mode'],
-                    color,
                     symbol,
                 )
 
                 if value != config['value']:
                     self.log(
                         '{}Updating alarm value to last: {} {} {}'.format(
-                            color['green'],
+                            self.log_format(True),
                             config['currency'],
                             value,
-                            color['none'],
+                            self.log_format(False),
                         )
                     )
                     config.update({'value': value})
     
     def __init__(self):
-        # self.log_config()
-        self.config_load()
         self.arg_parser()
+        # self.log_config()
+        self.config_load()        
         self.ticker.update({'api': self.config['api']})
 
         for key, value in self.config.items():
@@ -286,7 +311,7 @@ def main():
         while True:
             Monitor.monitor()
     except KeyboardInterrupt:
-        print(' Exiting...')
+        print('Exiting...{}'.format(Monitor.log_format(False, 'white')))
         sys.exit(1)
 
 
