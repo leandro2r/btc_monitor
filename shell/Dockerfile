@@ -7,13 +7,10 @@ RUN apk update && apk --no-cache add \
     bash \
     curl \
     bc \
-    shadow \
     jq \
     sox
 
 WORKDIR /home/btc_monitor
-
-RUN groupmod -g 92 audio
 
 COPY . .
 

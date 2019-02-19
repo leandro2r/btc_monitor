@@ -4,10 +4,11 @@ ARG CI_COMMIT_TAG=dev
 
 ENV TZ=America/Sao_Paulo
 ENV VERSION=$CI_COMMIT_TAG
+ENV ALSA_CARD=Generic
 
 RUN apk update && apk --no-cache add \
     tzdata \
-    build-base \
+    sox \
     py-pip && \
     pip install -U pip setuptools
 

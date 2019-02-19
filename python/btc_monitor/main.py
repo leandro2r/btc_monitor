@@ -2,15 +2,14 @@
 
 from argparse import ArgumentParser
 from datetime import datetime
-from playsound import playsound
 import collections.abc as collections
 import json
 import logging
-import requests
-import time
 import os
 import re
+import requests
 import sys
+import time
 import websocket
 import yaml
 
@@ -181,9 +180,6 @@ class BTC():
                 gotcha = True
 
         if gotcha:
-            if not self.config['mute']:
-                with open(self.config['sound'], 'rb') as file:
-                    playsound(self.config['sound'])
             self.log(
                 '{}########################################\n\n'
                 '\t\t\t   [{}] Value found: {} {}\n\n\t\t    ###'
@@ -195,7 +191,17 @@ class BTC():
                     color['none'],
                 )
             )
+
             target = value
+
+            if not self.config['mute']:
+                try:
+                    with open(self.config['sound'], 'rb') as file:
+                        os.system('play {}'.format(self.config['sound']))
+                except OSError as msg:
+                    self.log(
+                        'Error on playing alarm sound: {}'.format(msg)
+                    )
 
         return target
 
