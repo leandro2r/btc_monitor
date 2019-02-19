@@ -10,14 +10,14 @@ $ ./setup.py install
 ### Man btc_monitor
 
 ```shell
-$ btc_monitor -v <alarm_value> -a -d
+$ btc_monitor -v <alarm_value> -a -d -m -c <identification_color>
 ```
 
 - `-v <alarm_value>`: Monitored value
 - `-a`: Ascending mode
 - `-d`: Descending mode
 - `-m`: Mute (Alarm sound)
-
+- `-c <identification_color>`: Color name (`black` | `blue` | `cyan` | `green` | `purple` | `red` | `white` | `yellow`)
 
 ### Docker image
 

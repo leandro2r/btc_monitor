@@ -26,7 +26,7 @@ telegram_chat_id="<CHAT_ID>"
 ### Man btc_monitor
 
 ```shell
-$ btc_monitor -v <alarm_value> -a -d -t <summary_interval_in_seconds> -n <instance_name> -c <identification_color>
+$ btc_monitor -v <alarm_value> -a -d -m -t <summary_interval_in_seconds> -n <instance_name> -c <identification_color>
 ```
 
 - `-v <alarm_value>`: Monitored value
