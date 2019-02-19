@@ -42,9 +42,9 @@ class BTC():
         'symbol': {
             'asc': b'\xE2\x86\x97'.decode('utf-8'),
             'desc': b'\xE2\x86\x98'.decode('utf-8'),
-            'high': b'\xE2\xA4\x93'.decode('utf-8'),
+            'high': b'\xE2\xA4\x92'.decode('utf-8'),
             'last': b'\xE2\xA4\xBA'.decode('utf-8'),
-            'low': b'\xE2\xA4\x92'.decode('utf-8'),
+            'low': b'\xE2\xA4\x93'.decode('utf-8'),
             'target': b'\xE2\x9C\x96'.decode('utf-8'),
         }
     }
