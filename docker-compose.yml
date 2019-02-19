@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  python_version: &btc_monitor
+    image: leandro2r/btc_monitor:latest-python
+    privileged: true
+    devices:
+      - /dev/snd:/dev/snd
+    volumes:
+      - ./python:/home/btc_monitor
+      - ./python/extras/btc_monitor:/etc/btc_monitor
+    entrypoint: "tail -f /dev/null"
+    # command: ["-v", "1000", "-a", "-m"]
+
+  shell_version:
+    <<: *btc_monitor
+    image: leandro2r/btc_monitor:latest-shell
+    volumes:
+      - ./shell:/home/btc_monitor
+      - ./shell/extras/btc_monitor:/etc/btc_monitor
+    # command: ["-v", "1000", "-a", "-c", "red"]
