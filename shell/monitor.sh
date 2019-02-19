@@ -1,6 +1,5 @@
 #!/bin/bash
 
-BTC_CONFIG="btc_monitor.txt"
 BTC_TELEGRAM="telegram_api.sh"
 
 HEADER="##############################"
@@ -77,15 +76,15 @@ while getopts "v:n:t:c:admh" opt; do
     esac
 done
 
-if [ ! -f "$BTC_CONFIG" ]; then
-    BTC_CONFIG="/etc/btc_monitor/btc_monitor.txt"
+if [ ! -f "$CONFIG_FILE" ]; then
+    CONFIG_FILE="/etc/btc_monitor/btc_monitor.txt"
 fi
 
 if [ ! -f "$BTC_TELEGRAM" ]; then
     BTC_TELEGRAM="/opt/btc_monitor/telegram_api.sh"
 fi
 
-source $BTC_CONFIG
+source $CONFIG_FILE
 source $BTC_TELEGRAM
 
 setup()
@@ -99,7 +98,9 @@ setup()
         exit 1
     fi
 
-    if [[ -z ${api_ticker} ]]; then
+    if [[ -n ${API} ]]; then
+        api_ticker=$API
+    elif [[ -z ${api_ticker} ]]; then
         # Default api_ticker: Bitstamp
         api_ticker="https://www.bitstamp.net/api/v2/ticker/btcusd/"
     fi
@@ -109,9 +110,11 @@ setup()
         trade_fee=0.25
     fi
 
-    if [[ -z ${alarm_sound} ]]; then
+    if [[ -n ${SOUND_FILE} ]]; then
+        alarm_sound=$SOUND_FILE
+    elif [[ -z ${alarm_sound} ]]; then
         # Default alarm sound: register machine
-        alarm_sound="media/alarm.wav"
+        alarm_sound="/opt/btc_monitor/media/alarm.mp3"
     fi
 
     if [[ -z ${time_interval} ]]; then

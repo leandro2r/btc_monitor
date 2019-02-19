@@ -8,7 +8,7 @@ BTC_CONFIG:=/etc/btc_monitor
 install:
 	@echo Installing...
 	@mkdir -p $(BTC_DIR) $(BTC_CONFIG)
-	@cp -Rf *.sh media $(BTC_DIR)
+	@cp -Rf *.sh extras/media $(BTC_DIR)
 	@mv $(BTC_DIR)/monitor.sh $(BTC_DIR)/btc_monitor
 	@chmod +x $(BTC_DIR)/btc_monitor
 	@ln -s $(BTC_DIR)/btc_monitor /usr/local/bin/btc_monitor
