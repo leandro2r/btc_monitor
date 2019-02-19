@@ -37,18 +37,10 @@ $ btc_monitor -v <alarm_value> -a -d -t <summary_interval_in_seconds> -n <instan
 - `-c <identification_color>`: Color name (`0 black` | `1 blue` | `2 cyan` | `3 green` | `4 purple` | `5 red` | `6 white` | `7 yellow`)
 - `-m`: Mute (Alarm sound and Telegram publisher)
 
-### REST API ticker supported
+### Docker image
 
+If you have docker installed in your environment, just pull the image from ([btc_monitor docker hub](https://hub.docker.com/r/leandro2r/btc_monitor))
+
+```shell
+$ docker pull leandro2r/btc_monitor:latest-shell
 ```
-# Bitstamp
-api_ticker="https://www.bitstamp.net/api/v2/ticker/btcusd/"
-
-# Foxbit watcher
-api_ticker="http://watcher.foxbit.com.br/api/Ticker?exchange=Foxbit"
-
-```
-
-### REST API Docs
-
-- https://www.bitstamp.net/api
-- https://watcher-docs.foxbit.com.br/
