@@ -1,6 +1,7 @@
 #!/bin/bash
-source config.txt
-source telegram_api.sh
+
+BTC_CONFIG="btc_monitor.txt"
+BTC_TELEGRAM="telegram_api.sh"
 
 HEADER="##############################"
 FOOTER="###############################################################################"
@@ -75,6 +76,17 @@ while getopts "v:n:t:c:admh" opt; do
         ;;
     esac
 done
+
+if [ ! -f "$BTC_CONFIG" ]; then
+    BTC_CONFIG="/etc/btc_monitor/btc_monitor.txt"
+fi
+
+if [ ! -f "$BTC_TELEGRAM" ]; then
+    BTC_TELEGRAM="/opt/btc_monitor/telegram_api.sh"
+fi
+
+source $BTC_CONFIG
+source $BTC_TELEGRAM
 
 setup()
 {

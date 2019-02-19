@@ -2,5 +2,5 @@
 #telegram_chat_id=""
 #btc="0"
 api_ticker="https://www.bitstamp.net/api/v2/ticker/btcusd/"
-#api_ticker="https://www.mercadobitcoin.net/api/BTC/ticker/"
+#api_ticker="http://watcher.foxbit.com.br/api/Ticker?exchange=Foxbit"
 #json_object=true
