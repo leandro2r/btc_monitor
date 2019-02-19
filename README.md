@@ -9,8 +9,8 @@ There are two code versioned of the solution in this repository. The `./shell/` 
 
 ### Docker repository
 
-The BTC Monitor has a docker hub repository with both images.
-([btc_monitor docker hub](https://hub.docker.com/r/leandro2r/btc_monitor))
+The BTC Monitor has a [docker hub repository](https://hub.docker.com/r/leandro2r/btc_monitor) with both images. Just use it to download and run!
+
 
 ### REST API ticker supported
 

@@ -21,7 +21,7 @@ $ btc_monitor -v <alarm_value> -a -d
 
 ### Docker image
 
-If you have docker installed in your environment, just pull the image from ([btc_monitor docker hub](https://hub.docker.com/r/leandro2r/btc_monitor))
+If you have docker installed in your environment, just pull the image from [btc_monitor docker hub](https://hub.docker.com/r/leandro2r/btc_monitor)
 
 ```shell
 $ docker pull leandro2r/btc_monitor:latest-python
