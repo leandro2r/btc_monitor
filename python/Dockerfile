@@ -7,7 +7,7 @@ ENV VERSION=$CI_COMMIT_TAG
 
 RUN apk update && apk --no-cache add \
     tzdata \
-    build-base \
+    sox \
     py-pip && \
     pip install -U pip setuptools
 

@@ -1,23 +1,28 @@
 FROM alpine:latest
 
+ARG CI_COMMIT_TAG=dev
+
 ENV TZ=America/Sao_Paulo
+ENV VERSION=$CI_COMMIT_TAG
 
 RUN apk update && apk --no-cache add \
     tzdata \
     bash \
+    make \
     curl \
     bc \
-    shadow \
     jq \
     sox
 
-WORKDIR /home/btc_monitor
+COPY . /home/btc_monitor
 
-RUN groupmod -g 92 audio
+RUN cd /home/btc_monitor &&\
+    make install
 
-COPY . .
+RUN apk del make &&\
+    rm -rf /home/btc_monitor
 
-RUN cp -f config.txt config.txt.example
+WORKDIR /etc/btc_monitor
 
-ENTRYPOINT ["./monitor.sh"]
+ENTRYPOINT ["monitor"]
 # CMD [""]

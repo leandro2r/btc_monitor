@@ -2,15 +2,14 @@
 
 from argparse import ArgumentParser
 from datetime import datetime
-from playsound import playsound
 import collections.abc as collections
 import json
 import logging
-import requests
-import time
 import os
 import re
+import requests
 import sys
+import time
 import websocket
 import yaml
 
@@ -58,6 +57,7 @@ class BTC():
 
     def dict_update(self, cur, new):
         for key, value in new.items():
+            key = key.lower()
             if isinstance(value, collections.Mapping):
                 cur[key] = self.dict_update(cur.get(key, {}), value)
             else:
@@ -180,9 +180,6 @@ class BTC():
                 gotcha = True
 
         if gotcha:
-            if not self.config['mute']:
-                with open(self.config['sound'], 'rb') as file:
-                    playsound(self.config['sound'])
             self.log(
                 '{}########################################\n\n'
                 '\t\t\t   [{}] Value found: {} {}\n\n\t\t    ###'
@@ -194,7 +191,17 @@ class BTC():
                     color['none'],
                 )
             )
+
             target = value
+
+            if not self.config['mute']:
+                try:
+                    with open(self.config['sound'], 'rb') as file:
+                        os.system('play {}'.format(self.config['sound']))
+                except OSError as msg:
+                    self.log(
+                        'Error on playing alarm sound: {}'.format(msg)
+                    )
 
         return target
 
@@ -203,14 +210,17 @@ class BTC():
         ticker = self.ticker
         color = self.metadata['color']
         symbol = self.metadata['symbol']
-
         last = self.metadata['symbol']['last']
 
-        res = self.connect()
-        while not res:
-            print('Trying to reconnect...')
+        res = {}
+
+        d = self.connect()
+        while not d:
+            print('Trying to connect...')
             time.sleep(1)
-            res = self.connect()
+            d = self.connect()
+
+        self.dict_update(res, d)
 
         if config.get('mode'):
             if (config['mode'] == 'ascending' and

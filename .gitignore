@@ -1,6 +1,7 @@
 shell/config.txt
 python/venv
 *.yml
+*.txt
 build
 dist
 *.egg-info
