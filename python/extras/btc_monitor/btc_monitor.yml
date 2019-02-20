@@ -4,8 +4,12 @@
 # api: http://watcher.foxbit.com.br/api/Ticker?exchange=Foxbit
 # currency: R$
 
+# Bitstamp REST API
 # api: https://www.bitstamp.net/api/v2/ticker/btcusd/
 # currency: $
+
 # mute: False
 # sound: media/alarm.mp3
 # value: 0
+# btc: 0
+# trade_fee: 0.25
