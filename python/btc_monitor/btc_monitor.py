@@ -1,140 +1,24 @@
-#!/usr/bin/env python
+if __package__ is None or __package__ == '':
+    from log import Log
+else:
+    from btc_monitor.log import Log
 
-from argparse import ArgumentParser
 from datetime import datetime
-import collections.abc as collections
+
 import json
-import logging
-import os
 import re
 import requests
 import subprocess
-import sys
 import time
 import websocket
-import yaml
 
 
-class BTC():
-    API = os.environ.get('API', 'https://www.bitstamp.net/api/v2/ticker/btcusd/')
-    COLOR_ID = os.environ.get('COLOR_ID', 'white')
-    CONFIG_FILE = os.environ.get('CONFIG_FILE', '/etc/btc_monitor/btc_monitor.yml')
-    LOG_PATH = os.environ.get('LOG_PATH', '/var/log/btc_monitor/run.log')
-    SOUND_FILE = os.environ.get('SOUND_FILE', '/opt/btc_monitor/media/alarm.mp3')
-
-    config = {
-        # Default API from Bitstamp
-        'api': API,
-        'currency': '$',
-        'color': COLOR_ID,
-        'mute': False,
-        'sound': SOUND_FILE,
-        'value': 0,
-    }
-
+class BTC(Log):
     ticker = {
         'high': 0,
         'last': 0,
         'low': 0,
     }
-
-    metadata = {
-        'symbol': {
-            'asc': b'\xE2\x86\x97'.decode('utf-8'),
-            'desc': b'\xE2\x86\x98'.decode('utf-8'),
-            'high': b'\xE2\xA4\x92'.decode('utf-8'),
-            'last': b'\xE2\xA4\xBA'.decode('utf-8'),
-            'low': b'\xE2\xA4\x93'.decode('utf-8'),
-            'target': b'\xE2\x9C\x96'.decode('utf-8'),
-        }
-    }
-
-    def log_format(self, bold = False, color = ''):
-        d = {
-            'black': '\033[{};30m'.format(int(bold)),
-            'blue': '\033[{};33m'.format(int(bold)),
-            'cyan': '\033[{};36m'.format(int(bold)),
-            'green': '\033[{};32m'.format(int(bold)),
-            'purple': '\033[{};35m'.format(int(bold)),
-            'red': '\033[{};31m'.format(int(bold)),
-            'white': '\033[{}m'.format(int(bold)),
-            'yellow': '\033[{};33m'.format(int(bold)),
-        }
-
-        if not color:
-            color = self.config['color']
-
-        return d.get(color, d['white'])
-
-    def log_config(self):
-        FORMAT = '{}[%(asctime)s]{} %(message)s'.format(
-            self.log_format(),
-            self.log_format(),
-        )
-        logging.basicConfig(filename=self.LOG_PATH,
-                            level=logging.INFO,
-                            format=FORMAT)
-
-    def log(self, msg):
-        now = datetime.now().strftime('%d-%m-%y %H:%M:%S')
-        print(
-            '{}[{}]{} {}'.format(
-                self.log_format(),
-                now,
-                self.log_format(),
-                msg,                
-            )
-        )
-
-    def dict_update(self, cur, new):
-        for key, value in new.items():
-            key = key.lower()
-            if isinstance(value, collections.Mapping):
-                cur[key] = self.dict_update(cur.get(key, {}), value)
-            else:
-                cur[key] = value
-        return cur
-
-    def config_load(self):
-        try:
-            with open(self.CONFIG_FILE, 'r') as file:
-                yml = yaml.load(file)
-                if yml:
-                    self.dict_update(self.config, yml)
-                src = self.CONFIG_FILE
-        except Exception as error:
-            src = 'default'
-
-        self.log('Setting config from {}...'.format(src))
-
-    def arg_parser(self):
-        parser = ArgumentParser(description='BTC monitor parameters.')
-
-        parser.add_argument('-a', '--ascending', action='store_true',
-                            help='Ascending')
-        parser.add_argument('-d', '--descending', action='store_true',
-                            help='Descending')
-        parser.add_argument('-c', '--color', type=str, 
-                            help='Identification color')
-        parser.add_argument('-m', '--mute', action='store_true',
-                            help='Mute')
-        parser.add_argument('-v', '--value', type=float, help='Value')
-
-        args = parser.parse_args()
-
-        if args.value:
-            self.config['value'] = args.value
-
-        if args.color:
-            self.config['color'] = args.color
-
-        if args.mute:
-            self.config['mute'] = True
-
-        if args.ascending:
-            self.config['mode'] = 'ascending'
-        elif args.descending:
-            self.config['mode'] = 'descending'
 
     def http_call(self, url, payload=''):
         try:
@@ -294,26 +178,5 @@ class BTC():
                     config.update({'value': value})
     
     def __init__(self):
-        self.arg_parser()
-        # self.log_config()
-        self.config_load()        
+        super().__init__()
         self.ticker.update({'api': self.config['api']})
-
-        for key, value in self.config.items():
-            if value != 0:
-                print('\t\t    {}: {}'.format(key, value))
-
-
-def main():
-    Monitor = BTC()
-
-    try:
-        while True:
-            Monitor.monitor()
-    except KeyboardInterrupt:
-        print('Exiting...{}'.format(Monitor.log_format(False, 'white')))
-        sys.exit(1)
-
-
-if __name__ == '__main__':
-    main()

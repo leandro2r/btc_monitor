@@ -45,7 +45,7 @@ setup(
     data_files=[('.', ['.version'])],
     entry_points={
         'console_scripts': [
-            'btc_monitor=btc_monitor.main:main',
+            'btc_monitor=btc_monitor.__main__:main',
         ],
     },
     platforms='any',
