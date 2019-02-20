@@ -20,7 +20,7 @@ class BTC(Log):
         'low': 0,
     }
 
-    def http_call(self, url, payload=''):
+    def rest_call(self, url, payload=''):
         try:
             payload = requests.get(url, stream=True)
         except requests.exceptions.RequestException as error:
@@ -79,11 +79,11 @@ class BTC(Log):
         if 'ws://' in self.config['api'] or 'wss://' in self.config['api']:
             payload = self.ws_call(self.config['api'])
         else:
-            payload = self.http_call(self.config['api'])
+            payload = self.rest_call(self.config['api'])
 
         return payload
 
-    def alarm(self, target, value, mode, symbol):
+    def alarm(self, target, value, mode, symbol, color):
         gotcha = False
 
         if mode == 'ascending':
@@ -96,13 +96,13 @@ class BTC(Log):
         if gotcha:
             self.log(
                 '{}{}\n\n'
-                '\t\t\t   [{}] Value found: {} {}\n\n'
+                '\t\t\t   {} Value found: {} {}\n\n'
                 '{}{}'.format(
-                    self.log_format(True), '#'*55,
+                    self.log_format(True, color), '#'*50,
                     symbol['target'],
                     self.config['currency'],
                     value,
-                    '#'*75, self.log_format(),
+                    '#'*70, self.log_format(),
                 )
             )
 
@@ -116,7 +116,7 @@ class BTC(Log):
                             stderr=subprocess.PIPE, 
                             shell=True,
                         )
-                except OSError as msg:
+                except (OSError, ValueError) as msg:
                     self.log(
                         'Error on playing alarm sound: {}'.format(msg)
                     )
@@ -129,6 +129,7 @@ class BTC(Log):
         symbol = self.metadata['symbol']
         last = self.metadata['symbol']['last']
 
+        color = ''
         res = {}
 
         d = self.connect()
@@ -142,15 +143,17 @@ class BTC(Log):
         if config.get('mode'):
             if (config['mode'] == 'ascending' and
                  float(res['last']) > float(ticker['last'])):
-                last = '{}{}'.format(self.log_format(True, 'green'), symbol['asc'])
+                color = 'green'
+                last = '{}{}'.format(self.log_format(True, color), symbol['asc'])
             elif (config['mode'] == 'descending' and
                   float(res['last']) < float(ticker['last'])):
-                last = '{}{}'.format(self.log_format(True, 'red'), symbol['desc'])
+                color = 'red'
+                last = '{}{}'.format(self.log_format(True, color), symbol['desc'])
 
         ticker.update(res)
 
         self.log(
-            '{} {} {} {} | {} {} {} | {} {} {} '.format(
+            '{} {} {} {}| {} {} {} | {} {} {} '.format(
                 last, config['currency'], ticker['last'], self.log_format(),
                 symbol['low'], config['currency'], ticker['low'],
                 symbol['high'], config['currency'], ticker['high'],
@@ -164,19 +167,25 @@ class BTC(Log):
                     float(res['last']),
                     config['mode'],
                     symbol,
+                    color,
                 )
 
                 if value != config['value']:
                     self.log(
                         '{}Updating alarm value to last: {} {} {}'.format(
-                            self.log_format(True),
+                            self.log_format(True, color),
                             config['currency'],
                             value,
-                            self.log_format(False),
+                            self.log_format(),
                         )
                     )
                     config.update({'value': value})
     
     def __init__(self):
         super().__init__()
-        self.ticker.update({'api': self.config['api']})
+        self.ticker.update(
+            {
+                'api': self.config['api'], 
+                'last': self.config['value']
+            }
+        )

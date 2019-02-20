@@ -16,7 +16,7 @@ class Log(Config):
             'high': b'\xE2\xA4\x92'.decode('utf-8'),
             'last': b'\xE2\xA4\xBA'.decode('utf-8'),
             'low': b'\xE2\xA4\x93'.decode('utf-8'),
-            'target': b'\xE2\x9C\x96'.decode('utf-8'),
+            'target': b'\xE2\xAE\xBD'.decode('utf-8'),
         }
     }
 

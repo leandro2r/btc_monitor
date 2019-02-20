@@ -15,7 +15,7 @@ def main():
         while True:
             Monitor.monitor()
     except KeyboardInterrupt:
-        # print(' Exiting...{}'.format(Monitor.log_format(False, 'white')))
+        print('^C Exiting...{}'.format(Monitor.log_format(False, 'white')))
         sys.exit(1)
 
 
