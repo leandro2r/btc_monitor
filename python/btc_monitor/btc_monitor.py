@@ -86,7 +86,7 @@ class BTC(Log):
     def value_calc(self, btc, percent, last):
         return round(float(btc)*float(last)*float(1-float(percent)/100), 2)
 
-    def alarm(self, target, currency, value, mode, symbol, color):
+    def alarm(self, target, currency, value, mode, symbol, color, mute, sound):
         gotcha = False
 
         if mode == 'ascending':
@@ -101,22 +101,22 @@ class BTC(Log):
                 '{}{}\n\n'
                 '\t\t\t   {} Value found: {} {}\n\n'
                 '{}{}'.format(
-                    self.log_format(True, color), '#'*50,
+                    self.log_format(True, color), '#'*55,
                     symbol['target'],
                     currency,
                     value,
-                    '#'*70, self.log_format(),
+                    '#'*75, self.log_format(),
                 )
             )
 
             target = value
 
-            if not self.config['mute']:
+            if not mute:
                 try:
-                    with open(self.config['sound'], 'rb') as file:
+                    with open(sound, 'rb') as file:
                         subprocess.check_call(
-                            'play {}'.format(self.config['sound']), 
-                            stderr=subprocess.PIPE, 
+                            'play {}'.format(sound),
+                            stderr=subprocess.PIPE,
                             shell=True,
                         )
                 except (OSError, ValueError) as msg:
@@ -132,14 +132,15 @@ class BTC(Log):
         symbol = self.metadata['symbol']
         last = self.metadata['symbol']['last']
 
+        btc_value = 0
         color = ''
         res = {}
 
-        d = self.connect(self.config['api'])
+        d = self.connect(config['api'])
         while not d:
             print('Trying to connect...')
             time.sleep(1)
-            d = self.connect(self.config['api'])
+            d = self.connect(config['api'])
 
         self.dict_update(res, d)
 
@@ -155,17 +156,22 @@ class BTC(Log):
 
         ticker.update(res)
 
+        if config['btc'] > 0:
+            btc_value = '({} {})'.format(
+                config['currency'],
+                self.value_calc(
+                    config['btc'], 
+                    config['trade_fee'],
+                    float(ticker['last']),
+                ),
+            )
+
         self.log(
-            '{} {} {} {}| {} {} {} | {} {} {} ({} {})'.format(
+            '{} {} {} {}| {} {} {} | {} {} {} {}'.format(
                 last, config['currency'], ticker['last'], self.log_format(),
                 symbol['low'], config['currency'], ticker['low'],
                 symbol['high'], config['currency'], ticker['high'],
-                config['currency'],
-                self.value_calc(
-                    self.config['btc'], 
-                    self.config['trade_fee'],
-                    float(ticker['last']),
-                ),
+                btc_value,
             )
         )
 
@@ -173,11 +179,13 @@ class BTC(Log):
             if config['value'] > 0:
                 value = self.alarm(
                     config['value'],
-                    self.config['currency'],
+                    config['currency'],
                     float(res['last']),
                     config['mode'],
                     symbol,
                     color,
+                    config['mute'],
+                    config['sound'],
                 )
 
                 if value != config['value']:
