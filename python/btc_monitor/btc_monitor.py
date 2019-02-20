@@ -75,15 +75,18 @@ class BTC(Log):
 
         return payload
 
-    def connect(self):
-        if 'ws://' in self.config['api'] or 'wss://' in self.config['api']:
-            payload = self.ws_call(self.config['api'])
+    def connect(self, api):
+        if 'ws://' in api or 'wss://' in api:
+            payload = self.ws_call(api)
         else:
-            payload = self.rest_call(self.config['api'])
+            payload = self.rest_call(api)
 
         return payload
 
-    def alarm(self, target, value, mode, symbol, color):
+    def value_calc(self, btc, percent, last):
+        return round(float(btc)*float(last)*float(1-float(percent)/100), 2)
+
+    def alarm(self, target, currency, value, mode, symbol, color):
         gotcha = False
 
         if mode == 'ascending':
@@ -100,7 +103,7 @@ class BTC(Log):
                 '{}{}'.format(
                     self.log_format(True, color), '#'*50,
                     symbol['target'],
-                    self.config['currency'],
+                    currency,
                     value,
                     '#'*70, self.log_format(),
                 )
@@ -132,11 +135,11 @@ class BTC(Log):
         color = ''
         res = {}
 
-        d = self.connect()
+        d = self.connect(self.config['api'])
         while not d:
             print('Trying to connect...')
             time.sleep(1)
-            d = self.connect()
+            d = self.connect(self.config['api'])
 
         self.dict_update(res, d)
 
@@ -153,10 +156,16 @@ class BTC(Log):
         ticker.update(res)
 
         self.log(
-            '{} {} {} {}| {} {} {} | {} {} {} '.format(
+            '{} {} {} {}| {} {} {} | {} {} {} ({} {})'.format(
                 last, config['currency'], ticker['last'], self.log_format(),
                 symbol['low'], config['currency'], ticker['low'],
                 symbol['high'], config['currency'], ticker['high'],
+                config['currency'],
+                self.value_calc(
+                    self.config['btc'], 
+                    self.config['trade_fee'],
+                    float(ticker['last']),
+                ),
             )
         )
 
@@ -164,6 +173,7 @@ class BTC(Log):
             if config['value'] > 0:
                 value = self.alarm(
                     config['value'],
+                    self.config['currency'],
                     float(res['last']),
                     config['mode'],
                     symbol,

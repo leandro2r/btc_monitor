@@ -6,18 +6,23 @@ import yaml
 
 class Config():
     API = os.environ.get('API', 'https://www.bitstamp.net/api/v2/ticker/btcusd/')
+    BTC = os.environ.get('BTC', 0)
     COLOR_ID = os.environ.get('COLOR_ID', 'white')
     CONFIG_FILE = os.environ.get('CONFIG_FILE', '/etc/btc_monitor/btc_monitor.yml')
+    CURRENCY = os.environ.get('CURRENCY', '$')
     SOUND_FILE = os.environ.get('SOUND_FILE', '/opt/btc_monitor/media/alarm.mp3')
+    TRADE_FEE = os.environ.get('TRADE_FEE', 0)
 
     config = {
         # Default API from Bitstamp
         'api': API,
-        'currency': '$',
+        'currency': CURRENCY,
         'color': COLOR_ID,
         'mute': False,
         'sound': SOUND_FILE,
         'value': 0,
+        'btc': BTC,
+        'trade_fee': TRADE_FEE,
     }
 
     def dict_update(self, cur, new):
