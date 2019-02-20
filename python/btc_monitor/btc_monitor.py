@@ -101,11 +101,11 @@ class BTC(Log):
                 '{}{}\n\n'
                 '\t\t\t   {} Value found: {} {}\n\n'
                 '{}{}'.format(
-                    self.log_format(True, color), '#'*55,
+                    self.log_format(True, color), '#'*60,
                     symbol['target'],
                     currency,
                     value,
-                    '#'*75, self.log_format(),
+                    '#'*80, self.log_format(),
                 )
             )
 
@@ -156,14 +156,16 @@ class BTC(Log):
 
         ticker.update(res)
 
-        if config['btc'] > 0:
-            btc_value = '({} {})'.format(
+        if float(config['btc']) > 0:
+            btc_value = '{}({} {}){}'.format(
+                self.log_format(True, color),
                 config['currency'],
                 self.value_calc(
                     config['btc'], 
                     config['trade_fee'],
                     float(ticker['last']),
                 ),
+                self.log_format(),
             )
 
         self.log(
