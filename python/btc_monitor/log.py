@@ -5,8 +5,6 @@ else:
 
 from datetime import datetime
 
-import os
-
 
 class Log(Config):
     metadata = {
@@ -20,7 +18,7 @@ class Log(Config):
         }
     }
 
-    def log_format(self, bold = False, color = ''):
+    def log_format(self, bold=False, color=''):
         d = {
             'black': '\033[{};30m'.format(int(bold)),
             'blue': '\033[{};33m'.format(int(bold)),
@@ -44,7 +42,7 @@ class Log(Config):
                 self.log_format(),
                 now,
                 self.log_format(),
-                msg,                
+                msg,
             )
         )
 

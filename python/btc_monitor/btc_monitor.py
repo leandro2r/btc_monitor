@@ -6,7 +6,7 @@ else:
 from datetime import datetime
 
 import json
-import re
+import os
 import requests
 import subprocess
 import time
@@ -84,7 +84,10 @@ class BTC(Log):
         return payload
 
     def value_calc(self, btc, percent, last):
-        return round(float(btc)*float(last)*float(1-float(percent)/100), 2)
+        return round(
+            float(btc) * float(last) * float(1 - float(percent) / 100),
+            2
+        )
 
     def alarm(self, target, currency, value, mode, symbol, color, mute, sound):
         gotcha = False
@@ -101,11 +104,11 @@ class BTC(Log):
                 '{}{}\n\n'
                 '\t\t\t   {} Value found: {} {}\n\n'
                 '{}{}'.format(
-                    self.log_format(True, color), '#'*60,
+                    self.log_format(True, color), '#' * 60,
                     symbol['target'],
                     currency,
                     value,
-                    '#'*80, self.log_format(),
+                    '#' * 80, self.log_format(),
                 )
             )
 
@@ -113,7 +116,7 @@ class BTC(Log):
 
             if not mute:
                 try:
-                    with open(sound, 'rb') as file:
+                    if os.path.exists(sound):
                         subprocess.check_call(
                             'play {}'.format(sound),
                             stderr=subprocess.PIPE,
@@ -146,13 +149,19 @@ class BTC(Log):
 
         if config.get('mode'):
             if (config['mode'] == 'ascending' and
-                 float(res['last']) > float(ticker['last'])):
+               float(res['last']) > float(ticker['last'])):
                 color = 'green'
-                last = '{}{}'.format(self.log_format(True, color), symbol['asc'])
+                last = '{}{}'.format(
+                    self.log_format(True, color),
+                    symbol['asc']
+                )
             elif (config['mode'] == 'descending' and
                   float(res['last']) < float(ticker['last'])):
                 color = 'red'
-                last = '{}{}'.format(self.log_format(True, color), symbol['desc'])
+                last = '{}{}'.format(
+                    self.log_format(True, color),
+                    symbol['desc']
+                )
 
         ticker.update(res)
 
@@ -161,7 +170,7 @@ class BTC(Log):
                 self.log_format(True, color),
                 config['currency'],
                 self.value_calc(
-                    config['btc'], 
+                    config['btc'],
                     config['trade_fee'],
                     float(ticker['last']),
                 ),
@@ -200,12 +209,12 @@ class BTC(Log):
                         )
                     )
                     config.update({'value': value})
-    
+
     def __init__(self):
         super().__init__()
         self.ticker.update(
             {
-                'api': self.config['api'], 
+                'api': self.config['api'],
                 'last': self.config['value']
             }
         )

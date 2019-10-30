@@ -4,13 +4,23 @@ import collections.abc as collections
 import os
 import yaml
 
+
 class Config():
-    API = os.environ.get('API', 'https://www.bitstamp.net/api/v2/ticker/btcusd/')
+    API = os.environ.get(
+        'API',
+        'https://www.bitstamp.net/api/v2/ticker/btcusd/'
+    )
     BTC = os.environ.get('BTC', 0)
     COLOR_ID = os.environ.get('COLOR_ID', 'white')
-    CONFIG_FILE = os.environ.get('CONFIG_FILE', '/etc/btc_monitor/btc_monitor.yml')
+    CONFIG_FILE = os.environ.get(
+        'CONFIG_FILE',
+        '/etc/btc_monitor/btc_monitor.yml'
+    )
     CURRENCY = os.environ.get('CURRENCY', '$')
-    SOUND_FILE = os.environ.get('SOUND_FILE', '/opt/btc_monitor/media/alarm.mp3')
+    SOUND_FILE = os.environ.get(
+        'SOUND_FILE',
+        '/opt/btc_monitor/media/alarm.mp3'
+    )
     TRADE_FEE = os.environ.get('TRADE_FEE', 0)
 
     config = {
@@ -53,7 +63,7 @@ class Config():
                             help='Ascending')
         parser.add_argument('-d', '--descending', action='store_true',
                             help='Descending')
-        parser.add_argument('-c', '--color', type=str, 
+        parser.add_argument('-c', '--color', type=str,
                             help='Identification color')
         parser.add_argument('-m', '--mute', action='store_true',
                             help='Mute')
