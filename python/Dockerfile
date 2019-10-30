@@ -4,6 +4,7 @@ ARG CI_COMMIT_TAG=dev
 
 ENV TZ=America/Sao_Paulo
 ENV VERSION=$CI_COMMIT_TAG
+ENV PYTHONUNBUFFERED=1
 
 RUN apk update && apk --no-cache add \
     tzdata \
