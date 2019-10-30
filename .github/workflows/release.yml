@@ -1,0 +1,32 @@
+name: Docker image build
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'python/*'
+      - 'shell/*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build the python Docker image
+      run: docker build --pull -t leandro2r/btc_monitor:latest-python python
+
+    - name: Build the shell Docker image
+      run: docker build --pull -t leandro2r/btc_monitor:latest-shell shell
+
+    - name: Push the Docker images
+      run: |
+        docker push leandro2r/btc_monitor:latest-python
+        docker push leandro2r/btc_monitor:latest-shell
+
+    - name: Remove the Docker images
+      run: |
+        docker rmi leandro2r/btc_monitor:latest-python \
+        leandro2r/btc_monitor:latest-shell
