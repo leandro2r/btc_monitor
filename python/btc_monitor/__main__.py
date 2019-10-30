@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 if __package__ is None or __package__ == '':
     from btc_monitor import BTC
 else:
