@@ -11,7 +11,7 @@ COPY . /home/btc_monitor
 RUN apk update && apk --no-cache add \
     tzdata \
     sox \
-    py-pip && \
+    py-pip &&\
     pip install -U pip setuptools &&\
     cd /home/btc_monitor &&\
     ./setup.py install
