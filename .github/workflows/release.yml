@@ -23,7 +23,7 @@ jobs:
 
     - name: Push the Docker images
       run: |
-        docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWD docker.io
+        docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_PASSWD }} docker.io
         docker push leandro2r/btc_monitor:latest-python
         docker push leandro2r/btc_monitor:latest-shell
 
