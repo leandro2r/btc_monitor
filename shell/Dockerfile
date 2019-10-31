@@ -17,9 +17,8 @@ RUN apk update && apk --no-cache add \
 COPY . /home/btc_monitor
 
 RUN cd /home/btc_monitor &&\
-    make install
-
-RUN apk del make &&\
+    make install &&\
+    apk del make &&\
     rm -rf /home/btc_monitor
 
 WORKDIR /etc/btc_monitor
