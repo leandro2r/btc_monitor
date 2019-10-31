@@ -51,7 +51,7 @@ class Config():
     def config_load(self):
         try:
             with open(self.CONFIG_FILE, 'r') as file:
-                yml = yaml.load(file)
+                yml = yaml.load(file, Loader=yaml.BaseLoader)
                 if yml:
                     self.dict_update(self.config, yml)
                 src = self.CONFIG_FILE
