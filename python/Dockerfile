@@ -19,7 +19,7 @@ RUN apk update && apk --no-cache add \
 COPY extras/media /opt/btc_monitor/media
 COPY extras/btc_monitor /etc/btc_monitor
 
-RUN find /etc/btc_monitor/* -type f -exec sh -c 'cp -f {} {}.example' \; \
+RUN find /etc/btc_monitor/* -type f -exec sh -c 'cp -f {} {}.example' \; &&\
     mkdir -p /var/log/btc_monitor &&\
     apk del py-pip &&\
     rm -rf /home/btc_monitor
