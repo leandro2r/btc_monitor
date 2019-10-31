@@ -17,6 +17,10 @@ class Config():
         '/etc/btc_monitor/btc_monitor.yml'
     )
     CURRENCY = os.environ.get('CURRENCY', '$')
+    LOG_FILE = os.environ.get(
+        'LOG_FILE',
+        '/var/log/btc_monitor/run.log'
+    )
     SOUND_FILE = os.environ.get(
         'SOUND_FILE',
         '/opt/btc_monitor/media/alarm.mp3'
