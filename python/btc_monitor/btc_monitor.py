@@ -20,6 +20,13 @@ class BTC(Log):
         'low': 0,
     }
 
+    def __init__(self):
+        super().__init__()
+        self.ticker.update({
+            'api': self.config['api'],
+            'last': self.config['value']
+        })
+
     def rest_call(self, url, payload=''):
         try:
             payload = requests.get(url, stream=True)
@@ -209,12 +216,3 @@ class BTC(Log):
                         )
                     )
                     config.update({'value': value})
-
-    def __init__(self):
-        super().__init__()
-        self.ticker.update(
-            {
-                'api': self.config['api'],
-                'last': self.config['value']
-            }
-        )

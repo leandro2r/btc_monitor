@@ -18,6 +18,9 @@ class Log(Config):
         }
     }
 
+    def __init__(self):
+        super().__init__()
+
     def log_format(self, bold=False, color=''):
         d = {
             'black': '\033[{};30m'.format(int(bold)),
@@ -45,6 +48,3 @@ class Log(Config):
                 msg,
             )
         )
-
-    def __init__(self):
-        super().__init__()
